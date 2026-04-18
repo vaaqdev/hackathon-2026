@@ -1,6 +1,6 @@
 """
 Servidor de Testing Local - Mi Contador de Bolsillo (Deuna)
-FastAPI + Pandas para analizar datasets y responder preguntas de negocio.
+FastAPI + Pandas + Deepseek API para analizar datasets y responder preguntas de negocio.
 """
 
 import sys
@@ -11,23 +11,33 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 import json
+import os
 import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+import requests
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
+
+# Cargar variables de entorno
+load_dotenv()
+
+# Configuración de Deepseek API
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API")
+DEEPSEEK_API_URL = "https://api.deepseek.com/chat/completions"
+DEEPSEEK_MODEL = "deepseek-chat"  # Modelo más rápido (non-thinking mode)
 
 # Configuración
 app = FastAPI(
     title="Mi Contador de Bolsillo - API",
-    description="Asistente conversacional para micro-comerciantes ecuatorianos",
-    version="1.0.0"
+    description="Asistente conversacional para micro-comerciantes ecuatorianos con Deepseek AI",
+    version="2.0.0"
 )
 
 # CORS para desarrollo local
@@ -62,7 +72,7 @@ df_transacciones['hora'] = pd.to_datetime(df_transacciones['hora_transaccion'], 
 
 # Merge con comercios y clientes
 df_completo = df_transacciones.merge(
-    df_comercios[['id_comercio', 'nombre_comercio', 'rubro']],
+    df_comercios[['id_comercio', 'nombre_comercio', 'rubro', 'ciudad']],
     on='id_comercio',
     how='left'
 ).merge(
@@ -93,275 +103,233 @@ class AlertaProactiva(BaseModel):
     tipo: str
 
 
-# ==================== MOTOR DE ANÁLISIS ====================
+# ==================== MOTOR DE ANÁLISIS CON DEEPSEEK ====================
 
 class AnalizadorNegocio:
-    """Motor para analizar preguntas de negocio y generar respuestas."""
+    """Motor para analizar preguntas de negocio usando Deepseek AI."""
 
-    def __init__(self, df: pd.DataFrame):
+    def __init__(self, df: pd.DataFrame, df_clientes: pd.DataFrame, df_comercios: pd.DataFrame):
         self.df = df
+        self.df_clientes = df_clientes
+        self.df_comercios = df_comercios
         self.comercios = df['nombre_comercio'].unique()
         self.rubros = df['rubro'].unique()
 
-    def detectar_intencion(self, mensaje: str) -> tuple:
-        """Detecta la intención de la pregunta del usuario."""
-        mensaje_lower = mensaje.lower()
+    def get_comercio_data(self, id_comercio: str) -> Dict:
+        """Obtiene los datos de un comercio específico con cálculos matemáticos correctos."""
+        df_comercio = self.df[self.df['id_comercio'] == id_comercio].copy()
 
-        # Patrones de intención
-        patrones = {
-            'ventas_totales': r'(ventas? total|ingresos? total|cuanto (vendio|gano)|total de ventas)',
-            'ticket_promedio': r'(ticket promedio|promedio por venta|venta promedio|ticket medio)',
-            'transacciones_count': r'(cuantas? transacciones|numero de ventas|cantidad de operaciones)',
-            'metodo_pago': r'(metodo de pago|forma de pago|como pagan|tarjeta o efectivo)',
-            'productos_top': r'(productos? (mas vendido|top)|lo mas vendido|que se vende mas)',
-            'tendencias': r'(tendencia|evolucion|como (va|fue)|subio o bajo)',
-            'clientes': r'(clientes?|compradores?|consumidores?)',
-            'dia_semana': r'(dia de la semana|que dia|cuando se vende mas)',
-            'hora_pico': r'(hora|momento del dia|en que hora)',
-            'comparacion': r'(comparar|vs|contra|versus|diferencia entre)',
+        if len(df_comercio) == 0:
+            return None
+
+        comercio_info = self.df_comercios[self.df_comercios['id_comercio'] == id_comercio].iloc[0]
+
+        # Cálculos matemáticos correctos
+        total_ventas = df_comercio['monto_transaccion'].sum()
+        total_transacciones = len(df_comercio)
+        ticket_promedio = df_comercio['monto_transaccion'].mean()
+        ticket_mediana = df_comercio['monto_transaccion'].median()
+        ticket_min = df_comercio['monto_transaccion'].min()
+        ticket_max = df_comercio['monto_transaccion'].max()
+        clientes_unicos = df_comercio['id_cliente'].nunique()
+
+        # Métodos de pago
+        metodos_pago = df_comercio['metodo_pago'].value_counts().to_dict()
+        metodos_pct = {
+            metodo: round((cantidad / total_transacciones) * 100, 2)
+            for metodo, cantidad in metodos_pago.items()
         }
 
-        for intencion, patron in patrones.items():
-            if re.search(patron, mensaje_lower):
-                return intencion, mensaje_lower
+        # Top productos por monto y cantidad
+        productos_stats = df_comercio.groupby('descripcion_producto_o_servicio').agg({
+            'monto_transaccion': ['sum', 'count', 'mean']
+        }).reset_index()
+        productos_stats.columns = ['producto', 'total_monto', 'cantidad_ventas', 'promedio_monto']
+        productos_stats = productos_stats.sort_values('total_monto', ascending=False)
+        top_productos = productos_stats.head(5).to_dict('records')
 
-        return 'general', mensaje_lower
+        # Ventas por mes
+        ventas_mensuales = df_comercio.groupby('mes').agg({
+            'monto_transaccion': ['sum', 'count']
+        }).reset_index()
+        ventas_mensuales.columns = ['mes', 'ventas_total', 'transacciones']
+        ventas_mensuales_dict = ventas_mensuales.set_index('mes').to_dict('index')
 
-    def extraer_comercio(self, mensaje: str) -> Optional[str]:
-        """Extrae el nombre del comercio mencionado."""
-        for comercio in self.comercios:
-            if comercio.lower() in mensaje.lower():
-                return comercio
-        return None
+        # Días de la semana
+        dias_ventas = df_comercio['dia_semana'].value_counts().to_dict()
 
-    def extraer_periodo(self, mensaje: str) -> Optional[str]:
-        """Extrae el período de tiempo mencionado."""
-        mensaje_lower = mensaje.lower()
+        # Horas pico
+        horas_pico = df_comercio['hora'].value_counts().head(5).to_dict()
 
-        if 'ultimo mes' in mensaje_lower or 'mes pasado' in mensaje_lower:
-            return 'ultimo_mes'
-        elif 'ultimo trimestre' in mensaje_lower or 'trimestre pasado' in mensaje_lower:
-            return 'ultimo_trimestre'
-        elif 'este mes' in mensaje_lower or 'mes actual' in mensaje_lower:
-            return 'mes_actual'
-        elif 'hoy' in mensaje_lower:
-            return 'hoy'
-        elif 'ayer' in mensaje_lower:
-            return 'ayer'
-        elif 'semana' in mensaje_lower:
-            return 'semana'
-        elif 'mes' in mensaje_lower:
-            return 'mes'
-        return None
+        # Información de clientes
+        clientes_df = df_comercio.merge(
+            self.df_clientes[['id_cliente', 'edad', 'genero', 'frecuencia_visita']],
+            on='id_cliente',
+            how='left'
+        )
 
-    def filtrar_por_periodo(self, df: pd.DataFrame, periodo: str) -> pd.DataFrame:
-        """Filtra el dataframe según el período."""
-        if periodo == 'ultimo_mes':
-            mes_max = df['mes'].max()
-            return df[df['mes'] == mes_max]
-        elif periodo == 'ultimo_trimestre':
-            trim_max = df['trimestre'].max()
-            return df[df['trimestre'] == trim_max]
-        return df
+        edad_promedio = clientes_df['edad'].mean() if 'edad' in clientes_df.columns and not clientes_df['edad'].isna().all() else 0
+        genero_dist = clientes_df['genero'].value_counts().to_dict() if 'genero' in clientes_df.columns else {}
+        frecuencia_dist = clientes_df['frecuencia_visita'].value_counts().to_dict() if 'frecuencia_visita' in clientes_df.columns else {}
+
+        # Clientes top por gasto
+        clientes_gasto = df_comercio.groupby('id_cliente')['monto_transaccion'].sum().sort_values(ascending=False).head(5)
+
+        # Comparación mes a mes
+        if len(ventas_mensuales) >= 2:
+            ventas_list = ventas_mensuales['ventas_total'].tolist()
+            cambio_mes = ((ventas_list[-1] - ventas_list[-2]) / ventas_list[-2]) * 100 if ventas_list[-2] != 0 else 0
+        else:
+            cambio_mes = 0
+
+        return {
+            "comercio": {
+                "id": id_comercio,
+                "nombre": comercio_info['nombre_comercio'],
+                "rubro": comercio_info['rubro'],
+                "ciudad": comercio_info.get('ciudad', 'N/A')
+            },
+            "metricas": {
+                "total_ventas": round(total_ventas, 2),
+                "total_transacciones": int(total_transacciones),
+                "ticket_promedio": round(ticket_promedio, 2),
+                "ticket_mediana": round(ticket_mediana, 2),
+                "ticket_minimo": round(ticket_min, 2),
+                "ticket_maximo": round(ticket_max, 2),
+                "clientes_unicos": int(clientes_unicos)
+            },
+            "metodos_pago": {
+                "conteo": metodos_pago,
+                "porcentajes": metodos_pct
+            },
+            "productos_top": top_productos,
+            "ventas_mensuales": ventas_mensuales_dict,
+            "dias_ventas": dias_ventas,
+            "horas_pico": horas_pico,
+            "clientes": {
+                "edad_promedio": round(edad_promedio, 1),
+                "distribucion_genero": genero_dist,
+                "distribucion_frecuencia": frecuencia_dist,
+                "top_clientes_gasto": clientes_gasto.to_dict()
+            },
+            "tendencia": {
+                "cambio_mes_anterior": round(cambio_mes, 2)
+            }
+        }
+
+    def generar_contexto_ia(self, datos: Dict) -> str:
+        """Genera un contexto optimizado para la IA."""
+        m = datos['metricas']
+        c = datos['comercio']
+
+        contexto = f"""=== DATOS DEL COMERCIO ===
+Nombre: {c['nombre']}
+Rubro: {c['rubro']}
+Ciudad: {c['ciudad']}
+
+=== MÉTRICAS CLAVE (CÁLCULOS REALES) ===
+• Total de ventas: ${m['total_ventas']:,.2f}
+• Número de transacciones: {m['total_transacciones']:,}
+• Ticket promedio: ${m['ticket_promedio']:.2f}
+• Ticket mediana: ${m['ticket_mediana']:.2f}
+• Clientes únicos: {m['clientes_unicos']:,}
+• Tendencia vs mes anterior: {datos['tendencia']['cambio_mes_anterior']:+.1f}%
+
+=== MÉTODOS DE PAGO ===
+"""
+        for metodo, pct in datos['metodos_pago']['porcentajes'].items():
+            contexto += f"• {metodo}: {pct}% ({datos['metodos_pago']['conteo'][metodo]} trans)\n"
+
+        contexto += "\n=== TOP 5 PRODUCTOS POR VENTAS ===\n"
+        for i, prod in enumerate(datos['productos_top'], 1):
+            contexto += f"{i}. {prod['producto']}: ${prod['total_monto']:,.2f} ({prod['cantidad_ventas']} ventas, promedio ${prod['promedio_monto']:.2f})\n"
+
+        contexto += "\n=== VENTAS POR MES ===\n"
+        for mes, data in sorted(datos['ventas_mensuales'].items()):
+            contexto += f"• Mes {mes}: ${data['ventas_total']:,.2f} ({data['transacciones']} transacciones)\n"
+
+        contexto += f"\n=== PERFIL DE CLIENTES ===\n• Edad promedio: {datos['clientes']['edad_promedio']} años\n"
+        if datos['clientes']['distribucion_genero']:
+            contexto += "• Género: " + ", ".join([f"{k}: {v}" for k, v in datos['clientes']['distribucion_genero'].items()]) + "\n"
+
+        contexto += "\nINSTRUCCIONES: Responde basándote ÚNICAMENTE en estos datos. Sé conciso y directo. Si preguntan cálculos, usa estos valores exactos."
+
+        return contexto
+
+    def consultar_deepseek(self, mensaje: str, contexto: str) -> str:
+        """Consulta a Deepseek API."""
+        if not DEEPSEEK_API_KEY:
+            return "Error: No se ha configurado la API key de Deepseek (DEEPSEEK_API)."
+
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {DEEPSEEK_API_KEY}"
+        }
+
+        data = {
+            "model": DEEPSEEK_MODEL,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "Eres un asistente experto en análisis de datos para micro-comerciantes ecuatorianos. Responde de manera clara, concisa y útil. Usa máximo 3-4 oraciones."
+                },
+                {
+                    "role": "user",
+                    "content": f"{contexto}\n\nPREGUNTA: {mensaje}"
+                }
+            ],
+            "max_tokens": 500,
+            "temperature": 0.5,
+            "stream": False
+        }
+
+        try:
+            response = requests.post(DEEPSEEK_API_URL, headers=headers, json=data, timeout=30)
+            response.raise_for_status()
+            result = response.json()
+            return result["choices"][0]["message"]["content"]
+        except requests.exceptions.RequestException as e:
+            return f"Error de conexión con Deepseek: {str(e)}"
+        except (KeyError, IndexError) as e:
+            return f"Error procesando respuesta: {str(e)}"
 
     def responder(self, mensaje: str, id_comercio: Optional[str] = None) -> ChatResponse:
-        """Genera una respuesta basada en la pregunta del usuario."""
+        """Genera una respuesta usando Deepseek AI."""
+        if not id_comercio:
+            return ChatResponse(
+                respuesta="Por favor selecciona un comercio primero. Puedes ver los disponibles en /api/comercios",
+                tipo="error",
+                datos={}
+            )
 
-        intencion, mensaje_lower = self.detectar_intencion(mensaje)
-        comercio = self.extraer_comercio(mensaje)
-        periodo = self.extraer_periodo(mensaje)
+        datos = self.get_comercio_data(id_comercio)
 
-        # Filtrar por comercio si se especifica
-        df_filtrado = self.df.copy()
-        if comercio:
-            df_filtrado = df_filtrado[df_filtrado['nombre_comercio'] == comercio]
+        if not datos:
+            return ChatResponse(
+                respuesta=f"No se encontró el comercio '{id_comercio}'. Verifica el ID.",
+                tipo="error",
+                datos={"comercios_disponibles": self.df_comercios['id_comercio'].tolist()}
+            )
 
-        if periodo:
-            df_filtrado = self.filtrar_por_periodo(df_filtrado, periodo)
-
-        # Generar respuesta según intención
-        respuestas = {
-            'ventas_totales': self._resp_ventas_totales(df_filtrado, comercio, periodo),
-            'ticket_promedio': self._resp_ticket_promedio(df_filtrado, comercio, periodo),
-            'transacciones_count': self._resp_transacciones_count(df_filtrado, comercio, periodo),
-            'metodo_pago': self._resp_metodo_pago(df_filtrado, comercio),
-            'productos_top': self._resp_productos_top(df_filtrado, comercio),
-            'tendencias': self._resp_tendencias(df_filtrado, comercio),
-            'clientes': self._resp_clientes(df_filtrado, comercio),
-            'dia_semana': self._resp_dia_semana(df_filtrado, comercio),
-            'hora_pico': self._resp_hora_pico(df_filtrado, comercio),
-            'comparacion': self._resp_comparacion(df_filtrado, mensaje_lower),
-            'general': self._resp_general(df_filtrado, comercio),
-        }
-
-        return respuestas.get(intencion, respuestas['general'])
-
-    def _resp_ventas_totales(self, df: pd.DataFrame, comercio: Optional[str], periodo: Optional[str]) -> ChatResponse:
-        total = df['monto_transaccion'].sum()
-        count = len(df)
-
-        comercio_str = f"de **{comercio}**" if comercio else "totales"
-        periodo_str = self._periodo_str(periodo)
-
-        return ChatResponse(
-            respuesta=f"Las ventas {comercio_str} {periodo_str} fueron **${total:,.2f}** en {count:,} transacciones. 💰",
-            tipo="ventas",
-            datos={"total": round(total, 2), "transacciones": count}
-        )
-
-    def _resp_ticket_promedio(self, df: pd.DataFrame, comercio: Optional[str], periodo: Optional[str]) -> ChatResponse:
-        promedio = df['monto_transaccion'].mean()
-        mediana = df['monto_transaccion'].median()
-
-        comercio_str = f"de **{comercio}**" if comercio else "general"
-        periodo_str = self._periodo_str(periodo)
-
-        return ChatResponse(
-            respuesta=f"El ticket promedio {comercio_str} {periodo_str} es de **${promedio:.2f}**. La mediana es ${mediana:.2f}. 🧾",
-            tipo="ticket_promedio",
-            datos={"promedio": round(promedio, 2), "mediana": round(mediana, 2)}
-        )
-
-    def _resp_transacciones_count(self, df: pd.DataFrame, comercio: Optional[str], periodo: Optional[str]) -> ChatResponse:
-        count = len(df)
-
-        comercio_str = f"en **{comercio}**" if comercio else "totales"
-        periodo_str = self._periodo_str(periodo)
-
-        return ChatResponse(
-            respuesta=f"Se realizaron **{count:,} transacciones** {comercio_str} {periodo_str}. 📊",
-            tipo="conteo",
-            datos={"transacciones": count}
-        )
-
-    def _resp_metodo_pago(self, df: pd.DataFrame, comercio: Optional[str]) -> ChatResponse:
-        metodos = df['metodo_pago'].value_counts()
-        total = len(df)
-
-        respuesta = "Los métodos de pago más usados son:\n\n"
-        for metodo, cantidad in metodos.head(3).items():
-            porcentaje = (cantidad / total) * 100
-            respuesta += f"• **{metodo}**: {porcentaje:.1f}% ({cantidad:,} operaciones)\n"
-
-        return ChatResponse(
-            respuesta=respuesta + "\n💳 ¿Te gustaría ver más detalles?",
-            tipo="metodos_pago",
-            datos=metodos.to_dict()
-        )
-
-    def _resp_productos_top(self, df: pd.DataFrame, comercio: Optional[str]) -> ChatResponse:
-        productos = df.groupby('descripcion_producto_o_servicio')['monto_transaccion'].agg(['sum', 'count']).sort_values('sum', ascending=False)
-
-        comercio_str = f"en **{comercio}**" if comercio else ""
-
-        respuesta = f"Los productos que más ingresos generan {comercio_str} son:\n\n"
-        for producto, row in productos.head(5).iterrows():
-            respuesta += f"• **{producto}**: ${row['sum']:,.2f} ({int(row['count'])} ventas)\n"
+        contexto = self.generar_contexto_ia(datos)
+        respuesta = self.consultar_deepseek(mensaje, contexto)
 
         return ChatResponse(
             respuesta=respuesta,
-            tipo="productos_top",
-            datos=productos.head(5).to_dict()
+            tipo="ia_response",
+            datos={"comercio": datos['comercio']}
         )
 
-    def _resp_tendencias(self, df: pd.DataFrame, comercio: Optional[str]) -> ChatResponse:
-        ventas_mensuales = df.groupby('mes')['monto_transaccion'].sum()
-
-        if len(ventas_mensuales) > 1:
-            tendencia = "subiendo 📈" if ventas_mensuales.iloc[-1] > ventas_mensuales.iloc[0] else "bajando 📉"
-        else:
-            tendencia = "estable ➡️"
-
-        comercio_str = f"en **{comercio}**" if comercio else ""
-
-        return ChatResponse(
-            respuesta=f"Las ventas {comercio_str} están {tendencia}. El mejor mes fue el mes {ventas_mensuales.idxmax()} con ${ventas_mensuales.max():,.2f}.",
-            tipo="tendencias",
-            datos=ventas_mensuales.to_dict()
-        )
-
-    def _resp_clientes(self, df: pd.DataFrame, comercio: Optional[str]) -> ChatResponse:
-        clientes_unicos = df['id_cliente'].nunique()
-        clientes_recurrentes = df['id_cliente'].value_counts()
-        top_clientes = clientes_recurrentes.head(3)
-
-        comercio_str = f"en **{comercio}**" if comercio else ""
-
-        respuesta = f"Tienes **{clientes_unicos:,} clientes únicos** {comercio_str}.\n\nLos más frecuentes son:\n"
-        for cliente_id, compras in top_clientes.items():
-            respuesta += f"• Cliente {cliente_id}: {compras} compras\n"
-
-        return ChatResponse(
-            respuesta=respuesta,
-            tipo="clientes",
-            datos={"clientes_unicos": clientes_unicos, "top_clientes": top_clientes.to_dict()}
-        )
-
-    def _resp_dia_semana(self, df: pd.DataFrame, comercio: Optional[str]) -> ChatResponse:
-        dias = df['dia_semana'].value_counts()
-        top_dia = dias.index[0]
-        count = dias.iloc[0]
-
-        comercio_str = f"en **{comercio}**" if comercio else ""
-
-        return ChatResponse(
-            respuesta=f"El día con más ventas {comercio_str} es **{top_dia}** con {count:,} transacciones. 📅",
-            tipo="dia_semana",
-            datos=dias.to_dict()
-        )
-
-    def _resp_hora_pico(self, df: pd.DataFrame, comercio: Optional[str]) -> ChatResponse:
-        horas = df['hora'].value_counts().sort_index()
-        hora_pico = horas.idxmax()
-        count = horas.max()
-
-        comercio_str = f"en **{comercio}**" if comercio else ""
-
-        return ChatResponse(
-            respuesta=f"La hora pico {comercio_str} es a las **{hora_pico}:00** con {count:,} transacciones. ⏰",
-            tipo="hora_pico",
-            datos=horas.to_dict()
-        )
-
-    def _resp_comparacion(self, df: pd.DataFrame, mensaje: str) -> ChatResponse:
-        return ChatResponse(
-            respuesta="Para hacer comparaciones, necesito que especifiques qué dos períodos o comercios quieres comparar. Por ejemplo: 'Compara las ventas de enero vs febrero' o 'Compara SuperFresh vs ModaMundo'. 📊",
-            tipo="comparacion",
-            datos={}
-        )
-
-    def _resp_general(self, df: pd.DataFrame, comercio: Optional[str]) -> ChatResponse:
-        total_ventas = df['monto_transaccion'].sum()
-        total_trans = len(df)
-        ticket_prom = df['monto_transaccion'].mean()
-
-        comercio_str = f"de **{comercio}**" if comercio else "totales"
-
-        return ChatResponse(
-            respuesta=f"Resumen {comercio_str}:\n• Ventas: **${total_ventas:,.2f}**\n• Transacciones: **{total_trans:,}**\n• Ticket promedio: **${ticket_prom:.2f}**\n\n¿Qué te gustaría saber más a detalle? 🤔",
-            tipo="resumen",
-            datos={"ventas": round(total_ventas, 2), "transacciones": total_trans, "ticket_promedio": round(ticket_prom, 2)}
-        )
-
-    def _periodo_str(self, periodo: Optional[str]) -> str:
-        """Convierte el período a texto legible."""
-        if not periodo:
-            return ""
-        mapping = {
-            'ultimo_mes': 'en el último mes',
-            'ultimo_trimestre': 'en el último trimestre',
-            'mes_actual': 'este mes',
-            'hoy': 'hoy',
-            'ayer': 'ayer',
-            'semana': 'esta semana',
-            'mes': 'este mes',
-        }
-        return mapping.get(periodo, "")
-
-    def generar_alerta_proactiva(self) -> AlertaProactiva:
+    def generar_alerta_proactiva(self, id_comercio: Optional[str] = None) -> AlertaProactiva:
         """Genera una alerta proactiva basada en tendencias."""
-        # Calcular ventas del mes actual vs anterior
-        ventas_mensuales = self.df.groupby('mes')['monto_transaccion'].sum()
+        if id_comercio:
+            df_temp = self.df[self.df['id_comercio'] == id_comercio]
+            nombre = self.df_comercios[self.df_comercios['id_comercio'] == id_comercio]['nombre_comercio'].iloc[0] if len(self.df_comercios[self.df_comercios['id_comercio'] == id_comercio]) > 0 else "Tu negocio"
+        else:
+            df_temp = self.df
+            nombre = "Tu negocio"
+
+        ventas_mensuales = df_temp.groupby('mes')['monto_transaccion'].sum()
 
         if len(ventas_mensuales) >= 2:
             mes_actual = ventas_mensuales.iloc[-1]
@@ -370,28 +338,27 @@ class AnalizadorNegocio:
 
             if cambio > 10:
                 return AlertaProactiva(
-                    titulo="¡Buenas noticias! 📈",
-                    descripcion=f"Tus ventas subieron un {cambio:.1f}% respecto al mes pasado. ¡Sigue así!",
+                    titulo=f"¡{nombre} va en aumento! 📈",
+                    descripcion=f"Tus ventas subieron un {cambio:.1f}% respecto al mes pasado.",
                     tipo="positiva"
                 )
             elif cambio < -10:
                 return AlertaProactiva(
-                    titulo="Alerta de ventas 📉",
-                    descripcion=f"Tus ventas bajaron un {abs(cambio):.1f}% respecto al mes pasado. ¿Necesitas ideas para mejorar?",
+                    titulo=f"Alerta en {nombre} 📉",
+                    descripcion=f"Tus ventas bajaron un {abs(cambio):.1f}% respecto al mes pasado.",
                     tipo="negativa"
                 )
 
-        # Alerta de día pico
-        dia_pico = self.df['dia_semana'].value_counts().index[0]
+        dia_pico = df_temp['dia_semana'].value_counts().index[0] if len(df_temp) > 0 else "este día"
         return AlertaProactiva(
-            titulo="Consejo del día 💡",
-            descripcion=f"Los {dia_pico}s son tus días con más ventas. Considera hacer promociones especiales ese día.",
+            titulo=f"Consejo para {nombre} 💡",
+            descripcion=f"Los {dia_pico}s son tus días con más ventas. Considera promociones.",
             tipo="consejo"
         )
 
 
 # Inicializar analizador
-analizador = AnalizadorNegocio(df_completo)
+analizador = AnalizadorNegocio(df_completo, df_clientes, df_comercios)
 
 
 # ==================== ENDPOINTS ====================
@@ -404,10 +371,12 @@ async def root():
 
 @app.get("/api/health")
 async def health():
-    """Endpoint de salud para verificar que el servidor está funcionando."""
+    """Endpoint de salud."""
     return {
         "status": "ok",
         "timestamp": datetime.now().isoformat(),
+        "ai_provider": "deepseek",
+        "model": DEEPSEEK_MODEL,
         "datos": {
             "transacciones": len(df_transacciones),
             "clientes": len(df_clientes),
@@ -416,11 +385,44 @@ async def health():
     }
 
 
+@app.get("/api/comercios")
+async def get_comercios():
+    """Devuelve todos los comercios disponibles con sus métricas."""
+    comercios_list = []
+
+    for _, comercio in df_comercios.iterrows():
+        datos = analizador.get_comercio_data(comercio['id_comercio'])
+        if datos:
+            comercios_list.append({
+                "id": comercio['id_comercio'],
+                "nombre": comercio['nombre_comercio'],
+                "rubro": comercio['rubro'],
+                "ciudad": comercio.get('ciudad', 'N/A'),
+                "metricas": datos['metricas']
+            })
+
+    return {
+        "comercios": comercios_list,
+        "total": len(comercios_list)
+    }
+
+
+@app.get("/api/comercio/{id_comercio}")
+async def get_comercio(id_comercio: str):
+    """Devuelve datos completos de un comercio específico."""
+    datos = analizador.get_comercio_data(id_comercio)
+
+    if not datos:
+        raise HTTPException(status_code=404, detail=f"Comercio '{id_comercio}' no encontrado")
+
+    return datos
+
+
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """
-    Endpoint principal para el chatbot.
-    Recibe un mensaje del usuario y devuelve una respuesta analítica.
+    Endpoint principal para el chatbot con Deepseek AI.
+    Requiere un mensaje y opcionalmente un id_comercio.
     """
     try:
         respuesta = analizador.responder(request.mensaje, request.id_comercio)
@@ -430,69 +432,33 @@ async def chat(request: ChatRequest):
 
 
 @app.get("/api/alerta-proactiva")
-async def alerta_proactiva():
+async def alerta_proactiva(id_comercio: Optional[str] = Query(None)):
     """Genera una alerta proactiva basada en tendencias del negocio."""
-    return analizador.generar_alerta_proactiva()
-
-
-@app.get("/api/comercios")
-async def get_comercios():
-    """Devuelve la lista de comercios disponibles."""
-    return df_comercios.to_dict('records')
-
-
-@app.get("/api/resumen/{id_comercio}")
-async def get_resumen(id_comercio: str):
-    """Devuelve un resumen completo de un comercio específico."""
-    df_comercio = df_completo[df_completo['id_comercio'] == id_comercio]
-
-    if len(df_comercio) == 0:
-        raise HTTPException(status_code=404, detail="Comercio no encontrado")
-
-    info_comercio = df_comercios[df_comercios['id_comercio'] == id_comercio].iloc[0]
-
-    # Calcular métricas
-    ventas_totales = df_comercio['monto_transaccion'].sum()
-    transacciones = len(df_comercio)
-    ticket_promedio = df_comercio['monto_transaccion'].mean()
-    clientes_unicos = df_comercio['id_cliente'].nunique()
-
-    # Ventas por mes
-    ventas_mensuales = df_comercio.groupby('mes')['monto_transaccion'].sum().to_dict()
-
-    # Top productos
-    top_productos = df_comercio.groupby('descripcion_producto_o_servicio')['monto_transaccion'].sum().sort_values(ascending=False).head(5).to_dict()
-
-    return {
-        "comercio": {
-            "id": id_comercio,
-            "nombre": info_comercio['nombre_comercio'],
-            "rubro": info_comercio['rubro'],
-            "ciudad": info_comercio['ciudad']
-        },
-        "metricas": {
-            "ventas_totales": round(ventas_totales, 2),
-            "transacciones": transacciones,
-            "ticket_promedio": round(ticket_promedio, 2),
-            "clientes_unicos": clientes_unicos
-        },
-        "ventas_mensuales": ventas_mensuales,
-        "top_productos": top_productos
-    }
+    return analizador.generar_alerta_proactiva(id_comercio)
 
 
 @app.get("/api/transacciones")
-async def get_transacciones(limit: int = 100, comercio: Optional[str] = None):
-    """Devuelve transacciones recientes, opcionalmente filtradas por comercio."""
+async def get_transacciones(
+    limit: int = Query(100, ge=1, le=1000),
+    id_comercio: Optional[str] = Query(None)
+):
+    """Devuelve transacciones, opcionalmente filtradas por comercio."""
     df_result = df_transacciones.copy()
 
-    if comercio:
-        comercio_info = df_comercios[df_comercios['nombre_comercio'] == comercio]
-        if len(comercio_info) > 0:
-            id_com = comercio_info.iloc[0]['id_comercio']
-            df_result = df_result[df_result['id_comercio'] == id_com]
+    if id_comercio:
+        df_result = df_result[df_result['id_comercio'] == id_comercio]
 
-    return df_result.head(limit).to_dict('records')
+    # Merge con info de comercios
+    df_result = df_result.merge(
+        df_comercios[['id_comercio', 'nombre_comercio', 'rubro']],
+        on='id_comercio',
+        how='left'
+    )
+
+    return {
+        "transacciones": df_result.head(limit).to_dict('records'),
+        "total": len(df_result)
+    }
 
 
 # ==================== INICIAR SERVIDOR ====================
@@ -500,18 +466,19 @@ async def get_transacciones(limit: int = 100, comercio: Optional[str] = None):
 if __name__ == "__main__":
     import uvicorn
     print("\n" + "="*60)
-    print("🚀 Mi Contador de Bolsillo - Servidor de Testing")
+    print("🚀 Mi Contador de Bolsillo - Servidor con Deepseek AI")
     print("="*60)
+    print(f"\n🤖 Modelo: {DEEPSEEK_MODEL}")
+    print(f"🔑 API Key: {'✅ Configurada' if DEEPSEEK_API_KEY else '❌ No configurada'}")
     print("\n📍 URLs disponibles:")
-    print("   • Frontend: http://localhost:8000")
-    print("   • API Docs: http://localhost:8000/docs")
-    print("   • Health:   http://localhost:8000/api/health")
-    print("\n💡 Ejemplos de preguntas que puedes hacer:")
-    print("   • '¿Cuáles son mis ventas totales?'")
-    print("   • '¿Cuál es el ticket promedio en SuperFresh?'")
-    print("   • '¿Qué métodos de pago usan mis clientes?'")
-    print("   • '¿Cuáles son mis productos más vendidos?'")
-    print("   • '¿En qué día de la semana vendo más?'")
+    print("   • Frontend:    http://localhost:8000")
+    print("   • API Docs:    http://localhost:8000/docs")
+    print("   • Health:      http://localhost:8000/api/health")
+    print("   • Comercios:   http://localhost:8000/api/comercios")
+    print("\n💡 Ejemplos de uso:")
+    print("   • Listar comercios: GET /api/comercios")
+    print("   • Datos de comercio: GET /api/comercio/COM001")
+    print("   • Chat: POST /api/chat")
     print("\n" + "="*60 + "\n")
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
