@@ -4,7 +4,9 @@
       "Bash(python *)",
       "Bash(curl *)",
       "Bash(pip list *)",
-      "Bash(pip install *)"
+      "Bash(pip install *)",
+      "Bash(ipconfig)",
+      "Bash(findstr /i \"IPv4\")"
     ]
   }
 }

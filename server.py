@@ -23,10 +23,14 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 # Cargar variables de entorno
 load_dotenv()
+
+# Obtener el directorio base del proyecto
+BASE_DIR = Path(__file__).parent.resolve()
 
 # Configuración de Groq API
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -48,6 +52,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Montar carpeta public para archivos estáticos
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "public")), name="static")
 
 # Rutas de datasets
 DATASET_DIR = Path("dataset")
@@ -241,6 +248,37 @@ async def get_saldo_comercio(id_comercio: str):
     }
 
 
+# Endpoint para obtener datos completos de un comercio (para el dashboard)
+@app.get("/api/comercio/{id_comercio}")
+async def get_comercio_completo(id_comercio: str):
+    """Devuelve datos completos de un comercio para el dashboard."""
+    datos = analizador.get_comercio_data(id_comercio)
+    if not datos:
+        raise HTTPException(status_code=404, detail=f"Comercio '{id_comercio}' no encontrado")
+    return datos
+
+
+# Endpoint para alertas proactivas (simulado)
+@app.get("/api/alerta-proactiva")
+async def get_alerta_proactiva(id_comercio: str = Query(..., description="ID del comercio")):
+    """Devuelve una alerta proactiva basada en análisis de datos."""
+    datos = analizador.get_comercio_data(id_comercio)
+    if not datos:
+        raise HTTPException(status_code=404, detail=f"Comercio '{id_comercio}' no encontrado")
+
+    # Generar alerta simple basada en los datos
+    import random
+    alertas = [
+        {"titulo": "Ventas ↑", "descripcion": "Tus ventas subieron 15% esta semana", "tipo": "positiva"},
+        {"titulo": "Oportunidad", "descripcion": "El método Nequi tiene alta demanda", "tipo": "oportunidad"},
+        {"titulo": "Alerta", "descripcion": "Tus ventas bajaron 5% respecto al mes pasado", "tipo": "negativa"},
+    ]
+
+    # Seleccionar alerta basada en el ID del comercio para consistencia
+    idx = hash(id_comercio) % len(alertas)
+    return alertas[idx]
+
+
 # ==================== RESTO DE ENDPOINTS ====================
 
 @app.get("/api/datos/clientes")
@@ -256,7 +294,7 @@ async def get_todas_transacciones(): return clean_df_for_json(df_transacciones.c
 async def get_todo_fusionado(): return {"total_filas": len(df_completo), "datos": clean_df_for_json(df_completo.copy().astype(str))}
 
 @app.get("/")
-async def root(): return FileResponse("index.html")
+async def root(): return FileResponse(str(BASE_DIR / "public" / "index.html"))
 
 @app.get("/api/comercios")
 async def get_comercios():
