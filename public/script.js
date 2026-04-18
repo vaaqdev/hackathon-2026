@@ -4,36 +4,86 @@ let saldoVisible = true;
 let saldoActual = 0;
 let nombreComercio = '';
 let selectedAccountTemp = 'COM001';
+let comerciosDisponibles = []; // Almacena los comercios cargados del servidor
 const accountBalances = {};
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Por defecto seleccionar COM001
-    cambiarCuenta('COM001');
-    loadAccountBalances();
+document.addEventListener("DOMContentLoaded", async () => {
+    // Cargar comercios disponibles desde el servidor, luego seleccionar el primero
+    await loadAccountOptions();
+    if (comerciosDisponibles.length > 0) {
+        cambiarCuenta(comerciosDisponibles[0].comercio.id);
+    }
 });
 
+function getInitials(nombre) {
+    // Genera iniciales a partir del nombre del comercio
+    return nombre
+        .split(' ')
+        .map(word => word[0])
+        .join('')
+        .substring(0, 2)
+        .toUpperCase();
+}
+
+async function loadAccountOptions() {
+    // Cargar comercios disponibles desde el servidor
+    try {
+        const res = await fetch(`${API_BASE}/comercios`);
+        if (!res.ok) throw new Error('Error cargando comercios');
+        const data = await res.json();
+        comerciosDisponibles = data.comercios || [];
+
+        // Generar HTML del modal dinámicamente
+        const modalBody = document.getElementById('account-modal-body');
+        if (modalBody && comerciosDisponibles.length > 0) {
+            modalBody.innerHTML = comerciosDisponibles.map((c, index) => {
+                const comercio = c.comercio;
+                const isSelected = index === 0 ? 'selected' : '';
+                return `
+                    <div class="account-option ${isSelected}" data-account="${comercio.id}" onclick="selectAccountOption('${comercio.id}')">
+                        <div class="account-option-avatar">${getInitials(comercio.nombre)}</div>
+                        <div class="account-option-info">
+                            <div class="account-option-name">${comercio.nombre}</div>
+                            <div class="account-option-id">${comercio.id} • ${comercio.categoria} • ${comercio.ciudad}</div>
+                            <div class="account-balance-preview" id="preview-${comercio.id}">Cargando...</div>
+                        </div>
+                        <div class="account-option-check"><i class="fa-solid fa-check"></i></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Cargar saldos de todos los comercios
+        await loadAccountBalances();
+
+    } catch (e) {
+        console.error('Error cargando comercios:', e);
+    }
+}
+
 async function loadAccountBalances() {
-    // Cargar saldos de todas las cuentas para el modal
-    const accounts = ['COM001', 'COM002', 'COM003'];
-    for (const acc of accounts) {
+    // Cargar saldos de todas las cuentas cargadas dinámicamente
+    for (const c of comerciosDisponibles) {
+        const comercioId = c.comercio.id;
         try {
-            const res = await fetch(`${API_BASE}/comercio/${acc}`);
+            const res = await fetch(`${API_BASE}/comercio/${comercioId}`);
             if (res.ok) {
                 const data = await res.json();
-                accountBalances[acc] = data.metricas.saldo_actual;
-                const previewEl = document.getElementById(`preview-${acc}`);
+                accountBalances[comercioId] = data.metricas.saldo_actual;
+                const previewEl = document.getElementById(`preview-${comercioId}`);
                 if (previewEl) {
-                    previewEl.textContent = `Saldo: $${accountBalances[acc].toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                    previewEl.textContent = `Saldo: $${accountBalances[comercioId].toLocaleString('en-US', {minimumFractionDigits: 2})}`;
                 }
             }
         } catch (e) {
-            console.error(`Error cargando cuenta ${acc}:`, e);
+            console.error(`Error cargando saldo de ${comercioId}:`, e);
         }
     }
 }
 
 function openAccountModal() {
-    selectedAccountTemp = COMERCIO_ID || 'COM001';
+    const primerComercio = comerciosDisponibles.length > 0 ? comerciosDisponibles[0].comercio.id : 'COM001';
+    selectedAccountTemp = COMERCIO_ID || primerComercio;
     updateAccountSelectionUI();
     const modal = document.getElementById('accountModal');
     if (modal) {
@@ -92,7 +142,7 @@ async function cambiarCuenta(idComercio) {
         const currentBadge = document.getElementById('current-account-badge');
 
         if (balanceLabel) balanceLabel.textContent = `Cuenta: ${nombreComercio}`;
-        if (balanceCuentaInfo) balanceCuentaInfo.textContent = `${data.comercio.rubro} • ${data.comercio.ciudad}`;
+        if (balanceCuentaInfo) balanceCuentaInfo.textContent = `${data.comercio.categoria} • ${data.comercio.ciudad}`;
         if (currentBadge) currentBadge.textContent = COMERCIO_ID;
 
         actualizarSaldoUI();

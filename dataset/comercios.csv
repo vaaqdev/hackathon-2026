@@ -1,4 +1,4 @@
-id_comercio,nombre_comercio,rubro,ciudad,latitud,longitud
-COM001,SuperFresh,supermercado,Quito,-0.1807,-78.4678
-COM002,ModaMundo,ropa,Guayaquil,-0.2201,-78.5123
-COM003,Sabores & Co.,restaurante,Cuenca,-2.1894,-79.8891
+comercio_id,nombre,categoria,ciudad,zona,apertura,cierre
+COM001,Supermercado El Canasto,Supermercado,Quito,Norte,07:00,22:00
+COM002,Farmacia SaludPlus,Farmacia,Guayaquil,Centro,08:00,21:00
+COM003,Restaurante Sabor Andino,Restaurante,Cuenca,Sur,12:00,23:00

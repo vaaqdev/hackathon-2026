@@ -1,35 +1,41 @@
-EJEMPLOS DE PREGUNTAS DE ANÁLISIS — deuna! mi bolsillo
-=======================================================
+PREGUNTAS TÍPICAS PARA ANÁLISIS TRANSACCIONAL
+Período de cobertura: 2025-04-01 a 2026-04-01
+================================================
 
-ANÁLISIS DESCRIPTIVO
- 1. ¿Cuál es el ticket promedio en SuperFresh durante el último trimestre?
- 2. ¿Cuántas transacciones se realizaron en total por cada comercio en los 12 meses?
- 3. ¿Qué método de pago es más popular en cada comercio?
- 4. ¿Cuál es la distribución de montos de transacción (mínimo, máximo, mediana) por rubro?
- 5. ¿Cuáles son los 5 productos/servicios más vendidos en cada comercio?
+ÁREA: VENTAS
+1. ¿Cuál fue el monto total de ventas por comercio en el primer trimestre de 2025?
+2. ¿Cuáles son los 3 meses con mayor facturación en Supermercado El Canasto?
+3. ¿Cómo evolucionaron las ventas mensuales de Farmacia SaludPlus de abril a diciembre de 2025?
 
-ANÁLISIS DE TENDENCIAS
- 6. ¿Cómo ha evolucionado el gasto mensual en restaurantes a lo largo de los 12 meses?
- 7. ¿Existe un patrón estacional en las ventas de ModaMundo (ropa)?
- 8. ¿En qué día de la semana se concentran más transacciones por tipo de comercio?
- 9. ¿Cómo ha variado el ticket promedio trimestral en SuperFresh?
+ÁREA: CLIENTES
+4. ¿Qué porcentaje de las transacciones corresponde a clientes frecuentes vs. ocasionales?
+5. ¿Cuántos clientes nuevos se registraron cada mes en 2025?
+6. ¿Cuál es el NPS promedio por segmento de cliente?
 
-ANÁLISIS DE SEGMENTACIÓN
-10. ¿Cuáles son los segmentos RFM de clientes en cada comercio?
-11. ¿Existen diferencias de gasto entre grupos de edad (18-25, 26-40, 41+)?
-12. ¿Los clientes con frecuencia de visita "Semanal" generan más ingresos que los "Mensuales"?
-13. ¿Qué segmento de clientes tiene mayor probabilidad de churn?
+ÁREA: PRODUCTOS
+7. ¿Cuál es la categoría de producto con mayor número de ítems vendidos en Restaurante Sabor Andino?
+8. ¿Qué categoría genera el ticket promedio más alto en la Farmacia SaludPlus?
 
-ANÁLISIS DE COMPORTAMIENTO
-14. ¿A qué hora del día se realizan más transacciones en el restaurante?
-15. ¿Los clientes con mayores ingresos estimados prefieren tarjeta de crédito o débito?
-16. ¿Qué categoría de productos concentra mayor monto de ventas en SuperFresh?
+ÁREA: OPERACIONES
+9. ¿Cuál es la tasa de anulación de transacciones por comercio?
+10. ¿En qué rango horario se concentra el mayor volumen de ventas de cada comercio?
 
-ANÁLISIS DE VALOR
-17. ¿Cuál es el LTV estimado de los clientes que visitan un comercio semanalmente vs. mensualmente?
-18. ¿Cuáles son los 20% de clientes que generan el 80% de los ingresos (análisis Pareto)?
-19. ¿Cuál es la tasa de retención mensual por comercio?
+ÁREA: PAGOS
+11. ¿Cuál es el método de pago más utilizado en cada comercio?
+12. ¿Las ventas con tarjeta de crédito tienen un ticket promedio mayor que las de efectivo?
 
-ANÁLISIS PREDICTIVO
-20. ¿Se puede predecir qué clientes dejarán de comprar (churn) en los próximos 60 días
-    usando variables como recencia, frecuencia y monto histórico?
+ÁREA: CANALES
+13. ¿Qué proporción de ventas proviene del canal App vs. Presencial en los tres comercios?
+14. ¿Los clientes de canal Web tienen mayor frecuencia de compra que los de canal Presencial?
+
+ÁREA: ESTACIONALIDAD
+15. ¿Qué días de la semana registran más transacciones en el Restaurante Sabor Andino?
+16. ¿Existe un patrón estacional en las ventas de Farmacia SaludPlus durante fechas festivas?
+
+ÁREA: COMPARATIVO
+17. ¿Qué comercio tiene el ticket promedio más alto?
+18. ¿Cómo se compara el crecimiento de ventas entre los tres comercios en el período?
+
+ÁREA: RETENCIÓN
+19. ¿Cuántos clientes que compraron en abril de 2025 volvieron a comprar en julio de 2025?
+20. ¿Cuál es la tasa de retención mensual promedio por comercio?

@@ -1,66 +1,78 @@
-GLOSARIO DE TÉRMINOS DE NEGOCIO — deuna! mi bolsillo
-=======================================================
+GLOSARIO DE TÉRMINOS DE NEGOCIO
+Período de cobertura: 2025-04-01 a 2026-04-01
+================================================
 
-Ticket promedio
-  Valor monetario medio de una transacción en un periodo dado.
-  Fórmula: Suma de montos / Número de transacciones.
+Transacción
+  Registro individual de una compra o intercambio comercial entre un comercio y un cliente.
 
-Churn (Tasa de abandono)
-  Porcentaje de clientes que dejan de comprar en un periodo definido.
+Comercio
+  Establecimiento físico o digital registrado en la plataforma que procesa ventas.
 
-CAC – Costo de Adquisición de Cliente
-  Inversión total en marketing y ventas dividida entre los nuevos clientes obtenidos.
+Cliente
+  Persona o entidad que realiza compras; identificado por un código anónimo (CLI####).
 
-LTV – Lifetime Value (Valor del Tiempo de Vida del Cliente)
-  Ingreso neto proyectado que generará un cliente durante toda su relación con el comercio.
-  Aproximación: Ticket promedio × Frecuencia de compra anual × Años de vida del cliente.
+Segmento de cliente
+  Clasificación de clientes según comportamiento: Frecuente, Ocasional, Nuevo, Inactivo.
 
-Segmentación de clientes
-  Agrupación de clientes con características similares (demográficas, conductuales, de valor).
+Monto USD
+  Valor monetario de la transacción expresado en dólares estadounidenses.
 
-Análisis RFM
-  Técnica que clasifica clientes según Recencia (última compra), Frecuencia y Monto gastado.
-
-Análisis de cohortes
-  Seguimiento de grupos de clientes que comparten un evento inicial (ej: mes de primera compra)
-  para comparar comportamiento a lo largo del tiempo.
-
-Tasa de retención
-  Porcentaje de clientes activos que repiten compra en el siguiente periodo.
-
-Frecuencia de visita
-  Número promedio de transacciones de un cliente en un periodo determinado.
-
-Categoría de producto
-  Clasificación del producto o servicio comprado (Alimentos, Ropa, Bebidas, Hogar, etc.).
+Canal
+  Medio por el que se realizó la compra: Presencial, App o Web.
 
 Método de pago
-  Instrumento utilizado en la transacción: Tarjeta de crédito, débito, efectivo o transferencia.
+  Instrumento financiero usado: Efectivo, Tarjeta débito/crédito, Transferencia, App de pago.
 
-GMV – Gross Merchandise Value
-  Valor bruto total de las transacciones procesadas en un periodo.
+Estado de transacción
+  Resultado de la operación: Completada, Anulada o Pendiente.
+
+Frecuencia de visita
+  Número promedio de visitas mensuales de un cliente a un comercio.
+
+NPS Score
+  Net Promoter Score; escala 0-10 que mide la probabilidad de recomendación del cliente.
+
+Ticket promedio
+  Monto promedio por transacción, calculado como Monto total / Número de transacciones.
 
 Tasa de conversión
-  Proporción de visitas o interacciones que resultan en una compra efectiva.
+  Porcentaje de visitas que resultaron en una transacción completada.
 
-Up-sell / Cross-sell
-  Up-sell: vender un producto de mayor valor.
-  Cross-sell: vender productos complementarios en la misma transacción.
+Tasa de anulación
+  Porcentaje de transacciones con estado "Anulada" sobre el total.
 
-NPS – Net Promoter Score
-  Índice que mide la probabilidad de que un cliente recomiende el comercio (0-10).
+Categoría de producto
+  Agrupación temática de los artículos vendidos (p.ej. Lácteos, Medicamentos).
 
-Recencia
-  Número de días transcurridos desde la última transacción de un cliente.
+Trimestre
+  División del año en cuatro períodos de tres meses: Q1 (ene-mar), Q2 (abr-jun), Q3 (jul-sep), Q4 (oct-dic).
+
+Periodo de análisis
+  Ventana de tiempo considerada en el análisis; en este dataset: 2025-04-01 a 2026-04-01.
+
+Zona geográfica
+  Área de ubicación del comercio dentro de su ciudad (Norte, Centro, Sur).
+
+Cohorte
+  Grupo de clientes que comparten una característica temporal, como mes de primer registro.
+
+Retención
+  Porcentaje de clientes que repiten compra en un período definido.
+
+Valor de vida del cliente (CLV)
+  Estimación del ingreso total que generará un cliente a lo largo de su relación comercial.
 
 Estacionalidad
-  Variación regular de las ventas según época del año (temporada escolar, Navidad, etc.).
+  Variación periódica y predecible en el volumen de transacciones según fechas del año.
 
-Mapa de calor transaccional
-  Visualización geoespacial de la concentración de transacciones por zona geográfica.
+Hora pico
+  Franja horaria con mayor concentración de transacciones en un comercio.
 
-Ingreso estimado del cliente
-  Aproximación del nivel socioeconómico del cliente, útil para segmentación.
+Ítem
+  Unidad individual de producto incluida en una transacción.
 
-Dashboard de KPIs
-  Panel visual con indicadores clave de rendimiento del negocio (ticket, churn, retención, etc.).
+KPI
+  Indicador Clave de Desempeño; métrica que evalúa el cumplimiento de objetivos de negocio.
+
+Dashboard
+  Tablero visual que consolida KPIs y métricas para facilitar la toma de decisiones.

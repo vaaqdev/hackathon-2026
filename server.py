@@ -69,21 +69,19 @@ df_transacciones = pd.read_csv(TRANSACCIONES_CSV)
 df_clientes = pd.read_csv(CLIENTES_CSV)
 df_comercios = pd.read_csv(COMERCIOS_CSV)
 
-# Convertir fechas
-df_transacciones['fecha_transaccion'] = pd.to_datetime(df_transacciones['fecha_transaccion'])
-df_transacciones['hora_transaccion_dt'] = pd.to_datetime(df_transacciones['hora_transaccion'], format='%H:%M:%S', errors='coerce')
-df_transacciones['mes'] = df_transacciones['fecha_transaccion'].dt.month
-df_transacciones['dia_semana'] = df_transacciones['fecha_transaccion'].dt.day_name()
-df_transacciones['hora'] = df_transacciones['hora_transaccion_dt'].dt.hour
+# Convertir fechas (nuevas columnas)
+df_transacciones['fecha'] = pd.to_datetime(df_transacciones['fecha'])
+df_transacciones['hora_dt'] = pd.to_datetime(df_transacciones['hora'], format='%H:%M', errors='coerce')
+# Las columnas mes, dia_semana ya vienen en el CSV
 
-# Merge con comercios y clientes
+# Merge con comercios y clientes (nuevas columnas)
 df_completo = df_transacciones.merge(
-    df_comercios[['id_comercio', 'nombre_comercio', 'rubro', 'ciudad', 'latitud', 'longitud']],
-    on='id_comercio',
+    df_comercios[['comercio_id', 'nombre', 'categoria', 'ciudad', 'zona']],
+    on='comercio_id',
     how='left'
 ).merge(
-    df_clientes[['id_cliente', 'edad', 'genero', 'ingresos_estimados', 'frecuencia_visita']],
-    on='id_cliente',
+    df_clientes[['cliente_id', 'rango_edad', 'genero', 'visitas_por_mes', 'segmento', 'canal_preferido', 'nps_score']],
+    on='cliente_id',
     how='left'
 )
 
@@ -116,47 +114,47 @@ class AnalizadorNegocio:
         self.df_comercios = df_comercios
 
     def get_comercio_data(self, id_comercio: str) -> Dict:
-        df_comercio = self.df[self.df['id_comercio'] == id_comercio].copy()
+        df_comercio = self.df[self.df['comercio_id'] == id_comercio].copy()
 
         if len(df_comercio) == 0:
             return None
 
-        comercio_info = self.df_comercios[self.df_comercios['id_comercio'] == id_comercio].iloc[0]
+        comercio_info = self.df_comercios[self.df_comercios['comercio_id'] == id_comercio].iloc[0]
 
-        total_ventas = df_comercio['monto_transaccion'].sum()
+        # Solo transacciones completadas para el saldo
+        df_completadas = df_comercio[df_comercio['estado'] == 'Completada']
+        total_ventas = df_completadas['monto_usd'].sum()
         total_transacciones = len(df_comercio)
-        ticket_promedio = df_comercio['monto_transaccion'].mean()
-        clientes_unicos = df_comercio['id_cliente'].nunique()
+        ticket_promedio = df_comercio['monto_usd'].mean()
+        clientes_unicos = df_comercio['cliente_id'].nunique()
 
         metodos_pago = df_comercio['metodo_pago'].value_counts().to_dict()
         metodos_pct = {m: round((c / total_transacciones) * 100, 2) for m, c in metodos_pago.items()}
 
-        productos_stats = df_comercio.groupby('descripcion_producto_o_servicio').agg({
-            'monto_transaccion': ['sum', 'count']
+        productos_stats = df_comercio.groupby('categoria_producto').agg({
+            'monto_usd': ['sum', 'count']
         }).reset_index()
         productos_stats.columns = ['producto', 'total_monto', 'cantidad_ventas']
         top_productos = productos_stats.sort_values('total_monto', ascending=False).head(5).to_dict('records')
 
-        ventas_mensuales = df_comercio.groupby('mes').agg({'monto_transaccion': ['sum', 'count']}).reset_index()
+        ventas_mensuales = df_comercio.groupby('mes').agg({'monto_usd': ['sum', 'count']}).reset_index()
         ventas_mensuales.columns = ['mes', 'ventas_total', 'transacciones']
         ventas_mensuales_dict = ventas_mensuales.set_index('mes').to_dict('index')
 
-        clientes_df = df_comercio.merge(
-            self.df_clientes[['id_cliente', 'edad', 'genero', 'ingresos_estimados', 'frecuencia_visita']],
-            on='id_cliente',
-            how='left'
-        )
-
-        edad_promedio = clientes_df['edad'].mean() if 'edad' in clientes_df.columns else 0
-        ingreso_promedio = clientes_df['ingresos_estimados'].mean() if 'ingresos_estimados' in clientes_df.columns else 0
-        genero_dist = clientes_df['genero'].value_counts().to_dict() if 'genero' in clientes_df.columns else {}
+        # Ya tenemos datos de clientes en df_completo desde el merge inicial
+        # rango_edad es categórica, no numérica
+        genero_dist = df_comercio['genero'].value_counts().to_dict() if 'genero' in df_comercio.columns else {}
+        # Usar segmento_cliente del dataframe de transacciones
+        segmento_dist = df_comercio['segmento_cliente'].value_counts().to_dict() if 'segmento_cliente' in df_comercio.columns else {}
+        visitas_promedio = df_comercio['visitas_por_mes'].mean() if 'visitas_por_mes' in df_comercio.columns else 0
 
         return {
             "comercio": {
                 "id": id_comercio,
-                "nombre": comercio_info['nombre_comercio'],
-                "rubro": comercio_info['rubro'],
-                "ciudad": comercio_info.get('ciudad', 'N/A')
+                "nombre": comercio_info['nombre'],
+                "categoria": comercio_info['categoria'],
+                "ciudad": comercio_info.get('ciudad', 'N/A'),
+                "zona": comercio_info.get('zona', 'N/A')
             },
             "metricas": {
                 "saldo_actual": round(total_ventas, 2),
@@ -168,9 +166,9 @@ class AnalizadorNegocio:
             "productos_top": top_productos,
             "ventas_mensuales": ventas_mensuales_dict,
             "clientes": {
-                "edad_promedio": round(edad_promedio, 1),
-                "ingreso_promedio_estimado": round(ingreso_promedio, 2),
-                "distribucion_genero": genero_dist
+                "distribucion_genero": genero_dist,
+                "distribucion_segmento": segmento_dist,
+                "visitas_promedio_por_mes": round(visitas_promedio, 1)
             }
         }
 
@@ -181,16 +179,23 @@ class AnalizadorNegocio:
 
         contexto = f"""=== ESTADO FINANCIERO Y DATOS DEL NEGOCIO ===
 Nombre del Comercio: {c['nombre']}
-Rubro: {c['rubro']}
+Categoría: {c['categoria']}
+Ubicación: {c['ciudad']} - {c['zona']}
 
 === SALDO Y MÉTRICAS CLAVE ===
-• SALDO ACTUAL GENERADO (Total de ventas acumuladas): ${m['saldo_actual']:,.2f}
+• SALDO ACTUAL GENERADO (Total de ventas completadas): ${m['saldo_actual']:,.2f}
 • Total de transacciones realizadas: {m['total_transacciones']:,}
 • Ticket promedio por compra: ${m['ticket_promedio']:.2f}
+• Clientes únicos atendidos: {m['clientes_unicos']}
 
-=== TOP PRODUCTOS ===\n"""
+=== TOP CATEGORÍAS DE PRODUCTOS ===\n"""
         for i, prod in enumerate(datos['productos_top'], 1):
             contexto += f"{i}. {prod['producto']}: ${prod['total_monto']:,.2f} ({prod['cantidad_ventas']} ventas)\n"
+
+        contexto += f"\n=== PERFIL DE CLIENTES ===\n"
+        contexto += f"• Visitas promedio por mes: {cl['visitas_promedio_por_mes']}\n"
+        contexto += f"• Distribución por género: {cl['distribucion_genero']}\n"
+        contexto += f"• Segmentos: {cl['distribucion_segmento']}\n"
 
         return contexto
 
@@ -298,7 +303,7 @@ async def root(): return FileResponse(str(BASE_DIR / "public" / "index.html"))
 
 @app.get("/api/comercios")
 async def get_comercios():
-    comercios_list = [analizador.get_comercio_data(c['id_comercio']) for _, c in df_comercios.iterrows() if analizador.get_comercio_data(c['id_comercio'])]
+    comercios_list = [analizador.get_comercio_data(c['comercio_id']) for _, c in df_comercios.iterrows() if analizador.get_comercio_data(c['comercio_id'])]
     return {"comercios": comercios_list, "total": len(comercios_list)}
 
 @app.post("/api/chat", response_model=ChatResponse)
