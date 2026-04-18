@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "pregunta": "Cuales son mis ventas totales",
+    "descripcion": "Ventas totales - General",
+    "respuesta": "Las ventas totales  fueron **$143,004.06** en 6,000 transacciones. 💰",
+    "tipo": "ventas",
+    "status": "OK"
+  },
+  {
+    "id": 2,
+    "pregunta": "Cual es el ticket promedio en SuperFresh",
+    "descripcion": "Ticket promedio por comercio",
+    "respuesta": "El ticket promedio de **SuperFresh**  es de **$15.00**. La mediana es $10.64. 🧾",
+    "tipo": "ticket_promedio",
+    "status": "OK"
+  },
+  {
+    "id": 3,
+    "pregunta": "Cuantas transacciones tuvo ModaMundo",
+    "descripcion": "Conteo de transacciones",
+    "respuesta": "Se realizaron **2,000 transacciones** en **ModaMundo** . 📊",
+    "tipo": "conteo",
+    "status": "OK"
+  },
+  {
+    "id": 4,
+    "pregunta": "Que metodos de pago usan mis clientes",
+    "descripcion": "Métodos de pago populares",
+    "respuesta": "Tienes **400 clientes únicos** .\n\nLos más frecuentes son:\n• Cliente CLI0005: 27 compras\n• Cliente CLI0238: 26 compras\n• Cliente CLI0010: 25 compras\n",
+    "tipo": "clientes",
+    "status": "OK"
+  },
+  {
+    "id": 5,
+    "pregunta": "Cuales son los productos mas vendidos",
+    "descripcion": "Top productos",
+    "respuesta": "Los productos que más ingresos generan  son:\n\n• **Abrigo o chaqueta**: $17,038.61 (200 ventas)\n• **Calzado casual**: $14,869.05 (228 ventas)\n• **Conjunto outfit**: $13,841.96 (190 ventas)\n• **Compra semanal**: $10,498.44 (204 ventas)\n• **Pantalón jeans**: $10,021.65 (199 ventas)\n",
+    "tipo": "productos_top",
+    "status": "OK"
+  },
+  {
+    "id": 6,
+    "pregunta": "Como han evolucionado las ventas",
+    "descripcion": "Tendencias de ventas",
+    "respuesta": "Las ventas  están subiendo 📈. El mejor mes fue el mes 12 con $16,246.41.",
+    "tipo": "tendencias",
+    "status": "OK"
+  },
+  {
+    "id": 7,
+    "pregunta": "Cuantos clientes tengo",
+    "descripcion": "Conteo de clientes únicos",
+    "respuesta": "Tienes **400 clientes únicos** .\n\nLos más frecuentes son:\n• Cliente CLI0005: 27 compras\n• Cliente CLI0238: 26 compras\n• Cliente CLI0010: 25 compras\n",
+    "tipo": "clientes",
+    "status": "OK"
+  },
+  {
+    "id": 8,
+    "pregunta": "En que dia de la semana vendo mas",
+    "descripcion": "Análisis por día",
+    "respuesta": "El día con más ventas  es **Monday** con 882 transacciones. 📅",
+    "tipo": "dia_semana",
+    "status": "OK"
+  },
+  {
+    "id": 9,
+    "pregunta": "A que hora tengo mas ventas",
+    "descripcion": "Hora pico",
+    "respuesta": "La hora pico  es a las **14:00** con 806 transacciones. ⏰",
+    "tipo": "hora_pico",
+    "status": "OK"
+  },
+  {
+    "id": 10,
+    "pregunta": "Cual es el ticket promedio en Sabores & Co",
+    "descripcion": "Ticket por restaurante",
+    "respuesta": "El ticket promedio general  es de **$23.83**. La mediana es $14.21. 🧾",
+    "tipo": "ticket_promedio",
+    "status": "OK"
+  },
+  {
+    "id": 11,
+    "pregunta": "Que se vende mas en ModaMundo",
+    "descripcion": "Productos por comercio",
+    "respuesta": "Los productos que más ingresos generan en **ModaMundo** son:\n\n• **Abrigo o chaqueta**: $17,038.61 (200 ventas)\n• **Calzado casual**: $14,869.05 (228 ventas)\n• **Conjunto outfit**: $13,841.96 (190 ventas)\n• **Pantalón jeans**: $10,021.65 (199 ventas)\n• **Vestido**: $9,063.86 (209 ventas)\n",
+    "tipo": "productos_top",
+    "status": "OK"
+  },
+  {
+    "id": 12,
+    "pregunta": "Como pagan en SuperFresh",
+    "descripcion": "Métodos por comercio",
+    "respuesta": "Los métodos de pago más usados son:\n\n• **Tarjeta de débito**: 31.9% (638 operaciones)\n• **Tarjeta de crédito**: 31.6% (631 operaciones)\n• **Efectivo**: 21.2% (425 operaciones)\n\n💳 ¿Te gustaría ver más detalles?",
+    "tipo": "metodos_pago",
+    "status": "OK"
+  },
+  {
+    "id": 13,
+    "pregunta": "Cuantas transacciones en total",
+    "descripcion": "Conteo general",
+    "respuesta": "Se realizaron **6,000 transacciones** totales . 📊",
+    "tipo": "conteo",
+    "status": "OK"
+  },
+  {
+    "id": 14,
+    "pregunta": "Cuales son mis ventas totales",
+    "descripcion": "Ventas - Repetición",
+    "respuesta": "Las ventas totales  fueron **$143,004.06** en 6,000 transacciones. 💰",
+    "tipo": "ventas",
+    "status": "OK"
+  },
+  {
+    "id": 15,
+    "pregunta": "Que productos generan mas ingresos",
+    "descripcion": "Análisis de valor",
+    "respuesta": "Resumen totales:\n• Ventas: **$143,004.06**\n• Transacciones: **6,000**\n• Ticket promedio: **$23.83**\n\n¿Qué te gustaría saber más a detalle? 🤔",
+    "tipo": "resumen",
+    "status": "OK"
+  }
+]

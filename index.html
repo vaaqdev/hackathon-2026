@@ -174,10 +174,230 @@
         .nav-item {
             color: #ccc;
             font-size: 1.2rem;
+            cursor: pointer;
+            padding: 10px;
         }
 
         .nav-item.active {
             color: var(--deuna-purple);
+        }
+
+        /* Chatbot Styles */
+        .chat-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .chat-overlay.active {
+            display: flex;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            height: 80%;
+            background: var(--white);
+            border-radius: 24px 24px 0 0;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--deuna-purple), var(--deuna-electric-purple));
+            color: var(--white);
+            padding: 20px;
+            border-radius: 24px 24px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .chat-header span {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .close-chat {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            max-width: 85%;
+        }
+
+        .message.user {
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message.bot .message-content {
+            background: var(--white);
+            color: var(--deuna-dark);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .message.user .message-content {
+            background: var(--deuna-purple);
+            color: var(--white);
+        }
+
+        .chat-input-container {
+            padding: 15px 20px 25px;
+            background: var(--white);
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--deuna-purple);
+        }
+
+        .send-btn {
+            background: var(--deuna-purple);
+            color: var(--white);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: var(--white);
+            border-radius: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            width: fit-content;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #ccc;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .quick-questions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-question {
+            background: var(--deuna-purple);
+            color: var(--white);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-question:hover {
+            background: var(--deuna-electric-purple);
+        }
+
+        .alert-banner {
+            background: linear-gradient(90deg, var(--deuna-turquoise), #00d4aa);
+            color: var(--deuna-dark);
+            padding: 12px 20px;
+            margin: 0 25px 20px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            display: none;
+            cursor: pointer;
+        }
+
+        .alert-banner.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .alert-banner strong {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 4px;
         }
     </style>
 </head>
@@ -201,6 +421,12 @@
             <div><button class="action-btn">💰</button><p style="font-size: 0.7rem; text-align: center; margin-top: 5px;">Cobrar</p></div>
         </div>
 
+        <!-- Alerta Proactiva -->
+        <div id="alert-banner" class="alert-banner" onclick="openChat()">
+            <strong id="alert-title"></strong>
+            <span id="alert-desc"></span>
+        </div>
+
         <section class="history-section">
             <div class="history-title">
                 <span>Movimientos</span>
@@ -212,9 +438,51 @@
 
         <nav class="nav-bar">
             <div class="nav-item active">🏠</div>
-            <div class="nav-item">📊</div>
+            <div class="nav-item" onclick="openChat()" title="Mi Contador de Bolsillo">💬</div>
             <div class="nav-item">👤</div>
         </nav>
+
+        <!-- Chat Overlay -->
+        <div id="chat-overlay" class="chat-overlay">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div>
+                        <h3>Mi Contador de Bolsillo</h3>
+                        <span>Asistente de negocio</span>
+                    </div>
+                    <button class="close-chat" onclick="closeChat()">✕</button>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message bot">
+                        <div class="message-content">
+                            ¡Hola! Soy tu Contador de Bolsillo. ¿En qué puedo ayudarte hoy? 🤔
+                        </div>
+                    </div>
+                    <div class="message bot">
+                        <div class="message-content">
+                            Aquí tienes algunas preguntas que puedo responder:
+                            <div class="quick-questions">
+                                <button class="quick-question" onclick="sendQuickQuestion('Cuales son mis ventas totales')">💰 Ventas totales</button>
+                                <button class="quick-question" onclick="sendQuickQuestion('Cual es el ticket promedio')">🧾 Ticket promedio</button>
+                                <button class="quick-question" onclick="sendQuickQuestion('Que metodos de pago usan mis clientes')">💳 Métodos de pago</button>
+                                <button class="quick-question" onclick="sendQuickQuestion('Cuales son los productos mas vendidos')">📦 Productos top</button>
+                                <button class="quick-question" onclick="sendQuickQuestion('En que dia de la semana vendo mas')">📅 Día más ventas</button>
+                                <button class="quick-question" onclick="sendQuickQuestion('A que hora tengo mas ventas')">⏰ Hora pico</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chat-input" placeholder="Escribe tu pregunta..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendMessage()">➤</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -250,8 +518,132 @@
             }
         }
 
+        // Chatbot Functions
+        const API_URL = 'http://localhost:8000';
+
+        function openChat() {
+            document.getElementById('chat-overlay').classList.add('active');
+            document.getElementById('chat-input').focus();
+        }
+
+        function closeChat() {
+            document.getElementById('chat-overlay').classList.remove('active');
+        }
+
+        function addMessage(text, isUser = false) {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            messageDiv.innerHTML = `<div class="message-content">${text}</div>`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTyping() {
+            document.getElementById('typing-indicator').classList.add('active');
+            const messagesDiv = document.getElementById('chat-messages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function hideTyping() {
+            document.getElementById('typing-indicator').classList.remove('active');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const mensaje = input.value.trim();
+
+            if (!mensaje) return;
+
+            // Add user message
+            addMessage(mensaje, true);
+            input.value = '';
+
+            // Show typing indicator
+            showTyping();
+
+            try {
+                const response = await fetch(`${API_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mensaje })
+                });
+
+                const data = await response.json();
+                hideTyping();
+                addMessage(data.respuesta);
+            } catch (error) {
+                hideTyping();
+                addMessage('Lo siento, hubo un error al procesar tu pregunta. Por favor intenta de nuevo.');
+            }
+        }
+
+        function sendQuickQuestion(question) {
+            document.getElementById('chat-input').value = question;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Cargar alerta proactiva
+        async function cargarAlertaProactiva() {
+            try {
+                const response = await fetch(`${API_URL}/api/alerta-proactiva`);
+                const data = await response.json();
+
+                document.getElementById('alert-title').textContent = data.titulo;
+                document.getElementById('alert-desc').textContent = data.descripcion;
+                document.getElementById('alert-banner').classList.add('active');
+            } catch (error) {
+                console.log('No se pudo cargar la alerta proactiva');
+            }
+        }
+
+        // Cargar transacciones reales
+        async function cargarTransaccionesReales() {
+            try {
+                const response = await fetch(`${API_URL}/api/transacciones?limit=5`);
+                const transacciones = await response.json();
+
+                const list = document.getElementById('tx-list');
+                list.innerHTML = '';
+
+                transacciones.forEach(tx => {
+                    const esIngreso = tx.monto_transaccion > 0;
+                    const montoFormateado = Math.abs(tx.monto_transaccion).toFixed(2);
+                    const descripcion = tx.descripcion_producto_o_servicio || 'Transacción';
+                    const fecha = new Date(tx.fecha_transaccion).toLocaleDateString('es-EC');
+
+                    list.innerHTML += `
+                        <div class="transaction-card">
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <div class="trans-icon">${descripcion.charAt(0)}</div>
+                                <div class="trans-details">
+                                    <p>${descripcion}</p>
+                                    <span>${fecha}</span>
+                                </div>
+                            </div>
+                            <div class="amount ${esIngreso ? 'positive' : 'negative'}">
+                                ${esIngreso ? '+' : '-'}$${montoFormateado}
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.log('Usando datos de ejemplo');
+                refreshData();
+            }
+        }
+
         // Inicializar
-        window.onload = refreshData;
+        window.onload = function() {
+            cargarTransaccionesReales();
+            cargarAlertaProactiva();
+        };
     </script>
 </body>
 </html>
