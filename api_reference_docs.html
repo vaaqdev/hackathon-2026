@@ -1,0 +1,441 @@
+
+<h2 class="sr-only">Documentación de la API de Mi Contador de Bolsillo</h2>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.wrap { padding: 1rem 0; }
+.hero { margin-bottom: 2rem; }
+.hero h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.hero p { font-size: 14px; color: var(--color-text-secondary); }
+.base-pill { display: inline-flex; align-items: center; gap: 8px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 12px; margin-top: 10px; }
+.base-pill span { font-size: 12px; color: var(--color-text-secondary); }
+.base-pill code { font-family: var(--font-mono); font-size: 13px; color: var(--color-text-primary); }
+
+.section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; color: var(--color-text-tertiary); text-transform: uppercase; margin: 2rem 0 0.75rem; }
+
+.endpoint-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 12px; overflow: hidden; }
+.ep-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; user-select: none; }
+.ep-header:hover { background: var(--color-background-secondary); }
+.method { font-family: var(--font-mono); font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 4px; min-width: 44px; text-align: center; }
+.get { background: #EAF3DE; color: #3B6D11; }
+.post { background: #E6F1FB; color: #185FA5; }
+.ep-path { font-family: var(--font-mono); font-size: 13px; color: var(--color-text-primary); flex: 1; }
+.ep-desc { font-size: 13px; color: var(--color-text-secondary); }
+.chevron { font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.2s; }
+.chevron.open { transform: rotate(90deg); }
+
+.ep-body { border-top: 0.5px solid var(--color-border-tertiary); padding: 16px; display: none; }
+.ep-body.open { display: block; }
+
+.ep-section { margin-bottom: 16px; }
+.ep-section:last-child { margin-bottom: 0; }
+.ep-section-title { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+.param-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.param-table td { padding: 5px 8px; vertical-align: top; }
+.param-table tr:first-child td { padding-top: 0; }
+.param-table .pname { font-family: var(--font-mono); color: var(--color-text-primary); white-space: nowrap; }
+.param-table .ptype { color: var(--color-text-tertiary); font-size: 12px; white-space: nowrap; }
+.param-table .pdesc { color: var(--color-text-secondary); }
+.required-tag { font-size: 10px; background: #FCEBEB; color: #A32D2D; border-radius: 3px; padding: 1px 5px; margin-left: 4px; }
+.optional-tag { font-size: 10px; background: var(--color-background-secondary); color: var(--color-text-tertiary); border-radius: 3px; padding: 1px 5px; margin-left: 4px; }
+
+pre { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); overflow-x: auto; white-space: pre; line-height: 1.6; }
+
+.copy-btn { font-size: 12px; padding: 4px 10px; border-radius: var(--border-radius-md); cursor: pointer; float: right; margin-bottom: 6px; }
+.copy-btn:active { opacity: 0.7; }
+
+.resp-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.status-badge { font-size: 11px; font-family: var(--font-mono); padding: 2px 8px; border-radius: 4px; }
+.s200 { background: #EAF3DE; color: #3B6D11; }
+.s404 { background: #FAEEDA; color: #854F0B; }
+.s500 { background: #FCEBEB; color: #A32D2D; }
+
+.dataset-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.ds-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px; }
+.ds-card .ds-file { font-family: var(--font-mono); font-size: 13px; color: var(--color-text-primary); margin-bottom: 6px; }
+.ds-card .ds-count { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+.ds-card .ds-label { font-size: 12px; color: var(--color-text-secondary); }
+
+.ids-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.id-chip { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: 4px; padding: 3px 10px; color: var(--color-text-primary); }
+.id-chip span { color: var(--color-text-tertiary); font-size: 11px; margin-left: 4px; }
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Mi Contador de Bolsillo — API reference</h1>
+    <p>FastAPI · Groq llama-3.1-8b-instant · 6,000 transacciones · 3 comercios</p>
+    <div class="base-pill">
+      <span>Base URL</span>
+      <code>http://localhost:8000</code>
+    </div>
+  </div>
+
+  <div class="section-label">Dataset</div>
+  <div class="dataset-grid">
+    <div class="ds-card">
+      <div class="ds-file">transacciones.csv</div>
+      <div class="ds-count">6,000</div>
+      <div class="ds-label">transacciones · 11 columnas</div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-file">clientes.csv</div>
+      <div class="ds-count">400</div>
+      <div class="ds-label">clientes · 5 columnas</div>
+    </div>
+    <div class="ds-card">
+      <div class="ds-file">comercios.csv</div>
+      <div class="ds-count">3</div>
+      <div class="ds-label">comercios · 6 columnas</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 16px;">
+    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px;">IDs de comercio disponibles</div>
+    <div class="ids-row">
+      <div class="id-chip">COM001 <span>SuperFresh · Quito</span></div>
+      <div class="id-chip">COM002 <span>ModaMundo · Guayaquil</span></div>
+      <div class="id-chip">COM003 <span>Sabores &amp; Co. · Cuenca</span></div>
+    </div>
+  </div>
+
+  <div class="section-label">Endpoints</div>
+
+  <!-- GET / -->
+  <div class="endpoint-card">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="ep-path">/</span>
+      <span class="ep-desc">Sirve el frontend (index.html)</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="ep-body">
+      <div class="ep-section">
+        <div class="ep-section-title">Curl</div>
+        <pre>curl http://localhost:8000/</pre>
+      </div>
+      <div class="ep-section">
+        <div class="resp-meta"><span class="status-badge s200">200</span><span style="font-size:12px;color:var(--color-text-secondary)">text/html</span></div>
+        <div style="font-size:13px;color:var(--color-text-secondary)">Devuelve el archivo index.html del frontend.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /api/health -->
+  <div class="endpoint-card">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="ep-path">/api/health</span>
+      <span class="ep-desc">Estado del servidor</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="ep-body">
+      <div class="ep-section">
+        <div class="ep-section-title">Curl</div>
+        <pre>curl http://localhost:8000/api/health</pre>
+      </div>
+      <div class="ep-section">
+        <div class="resp-meta"><span class="status-badge s200">200</span></div>
+        <pre>{
+  "status": "ok",
+  "timestamp": "2024-06-15T10:32:00.123456",
+  "ai_provider": "groq",
+  "model": "llama-3.1-8b-instant",
+  "datos": {
+    "transacciones": 6000,
+    "clientes": 400,
+    "comercios": 3
+  }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /api/comercios -->
+  <div class="endpoint-card">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="ep-path">/api/comercios</span>
+      <span class="ep-desc">Lista todos los comercios con métricas</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="ep-body">
+      <div class="ep-section">
+        <div class="ep-section-title">Curl</div>
+        <pre>curl http://localhost:8000/api/comercios</pre>
+      </div>
+      <div class="ep-section">
+        <div class="resp-meta"><span class="status-badge s200">200</span></div>
+        <pre>{
+  "comercios": [
+    {
+      "id": "COM001",
+      "nombre": "SuperFresh",
+      "rubro": "supermercado",
+      "ciudad": "Quito",
+      "metricas": {
+        "total_ventas": 48230.50,
+        "total_transacciones": 2100,
+        "ticket_promedio": 22.97,
+        "ticket_mediana": 18.40,
+        "ticket_minimo": 1.20,
+        "ticket_maximo": 198.50,
+        "clientes_unicos": 312
+      }
+    },
+    { "..." : "..." }
+  ],
+  "total": 3
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /api/comercio/{id} -->
+  <div class="endpoint-card">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="ep-path">/api/comercio/{id_comercio}</span>
+      <span class="ep-desc">Datos completos de un comercio</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="ep-body">
+      <div class="ep-section">
+        <div class="ep-section-title">Parámetros de ruta</div>
+        <table class="param-table">
+          <tr><td class="pname">id_comercio<span class="required-tag">required</span></td><td class="ptype">string</td><td class="pdesc">ID del comercio. Ej: COM001, COM002, COM003</td></tr>
+        </table>
+      </div>
+      <div class="ep-section">
+        <div class="ep-section-title">Curl</div>
+        <pre>curl http://localhost:8000/api/comercio/COM001</pre>
+      </div>
+      <div class="ep-section">
+        <div class="resp-meta"><span class="status-badge s200">200</span></div>
+        <pre>{
+  "comercio": { "id": "COM001", "nombre": "SuperFresh", "rubro": "supermercado", "ciudad": "Quito" },
+  "metricas": {
+    "total_ventas": 48230.50,
+    "total_transacciones": 2100,
+    "ticket_promedio": 22.97,
+    "ticket_mediana": 18.40,
+    "ticket_minimo": 1.20,
+    "ticket_maximo": 198.50,
+    "clientes_unicos": 312
+  },
+  "metodos_pago": {
+    "conteo": { "Tarjeta de débito": 840, "Efectivo": 630, "Tarjeta de crédito": 420, "Transferencia": 210 },
+    "porcentajes": { "Tarjeta de débito": 40.0, "Efectivo": 30.0, "Tarjeta de crédito": 20.0, "Transferencia": 10.0 }
+  },
+  "productos_top": [
+    { "producto": "Frutas y verduras", "total_monto": 8200.00, "cantidad_ventas": 380, "promedio_monto": 21.58 },
+    { "..." : "..." }
+  ],
+  "ventas_mensuales": {
+    "1": { "ventas_total": 3800.00, "transacciones": 160 },
+    "2": { "ventas_total": 4100.00, "transacciones": 175 }
+  },
+  "dias_ventas": { "Saturday": 380, "Sunday": 360, "Friday": 320 },
+  "horas_pico": { "12": 240, "18": 210, "19": 195 },
+  "clientes": {
+    "edad_promedio": 34.2,
+    "distribucion_genero": { "F": 168, "M": 144 },
+    "distribucion_frecuencia": { "Semanal": 120, "Quincenal": 96, "Mensual": 84 },
+    "top_clientes_gasto": { "CLI0023": 980.50, "CLI0145": 870.20 }
+  },
+  "tendencia": { "cambio_mes_anterior": 7.89 }
+}</pre>
+      </div>
+      <div class="ep-section">
+        <div class="resp-meta"><span class="status-badge s404">404</span></div>
+        <pre>{ "detail": "Comercio 'COM999' no encontrado" }</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- POST /api/chat -->
+  <div class="endpoint-card">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method post">POST</span>
+      <span class="ep-path">/api/chat</span>
+      <span class="ep-desc">Chatbot con Groq AI — endpoint principal</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="ep-body">
+      <div class="ep-section">
+        <div class="ep-section-title">Body (JSON)</div>
+        <table class="param-table">
+          <tr><td class="pname">mensaje<span class="required-tag">required</span></td><td class="ptype">string</td><td class="pdesc">Pregunta en lenguaje natural sobre el negocio</td></tr>
+          <tr><td class="pname">id_comercio<span class="optional-tag">optional</span></td><td class="ptype">string</td><td class="pdesc">ID del comercio a consultar. Si se omite, el bot pide que lo especifiques</td></tr>
+        </table>
+      </div>
+
+      <div class="ep-section">
+        <div class="ep-section-title">Ejemplos de curl</div>
+        <pre style="margin-bottom:8px"># Producto más vendido
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"mensaje": "¿Cuál fue mi producto más vendido?", "id_comercio": "COM001"}'</pre>
+        <pre style="margin-bottom:8px"># Ticket promedio
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"mensaje": "¿Cuál es mi ticket promedio?", "id_comercio": "COM001"}'</pre>
+        <pre style="margin-bottom:8px"># Método de pago
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"mensaje": "¿Qué método de pago usan más mis clientes?", "id_comercio": "COM002"}'</pre>
+        <pre style="margin-bottom:8px"># Tendencia mensual
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"mensaje": "¿Cómo han evolucionado mis ventas mes a mes?", "id_comercio": "COM003"}'</pre>
+        <pre style="margin-bottom:8px"># Hora pico
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"mensaje": "¿A qué hora del día vendo más?", "id_comercio": "COM003"}'</pre>
+        <pre style="margin-bottom:8px"># Perfil de clientes
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"mensaje": "¿Quiénes son mis mejores clientes?", "id_comercio": "COM001"}'</pre>
+        <pre># Sin comercio — devuelve instrucción
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"mensaje": "¿Cuánto vendí este mes?"}'</pre>
+      </div>
+
+      <div class="ep-section">
+        <div class="ep-section-title">Respuesta exitosa</div>
+        <div class="resp-meta"><span class="status-badge s200">200</span></div>
+        <pre>{
+  "respuesta": "Tu producto más vendido en SuperFresh es Frutas y verduras, con $8,200.00 en ventas y 380 transacciones. Le sigue Pan y panadería con $6,100.00.",
+  "tipo": "ia_response",
+  "datos": {
+    "comercio": {
+      "id": "COM001",
+      "nombre": "SuperFresh",
+      "rubro": "supermercado",
+      "ciudad": "Quito"
+    }
+  }
+}</pre>
+      </div>
+      <div class="ep-section">
+        <div class="resp-meta"><span class="status-badge s200">200</span><span style="font-size:12px;color:var(--color-text-secondary)">sin id_comercio</span></div>
+        <pre>{
+  "respuesta": "Por favor selecciona un comercio primero. Puedes ver los disponibles en /api/comercios",
+  "tipo": "error",
+  "datos": {}
+}</pre>
+      </div>
+      <div class="ep-section">
+        <div class="resp-meta"><span class="status-badge s500">500</span></div>
+        <pre>{ "detail": "Error procesando la consulta: ..." }</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /api/alerta-proactiva -->
+  <div class="endpoint-card">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="ep-path">/api/alerta-proactiva</span>
+      <span class="ep-desc">Alerta automática basada en tendencias</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="ep-body">
+      <div class="ep-section">
+        <div class="ep-section-title">Query params</div>
+        <table class="param-table">
+          <tr><td class="pname">id_comercio<span class="optional-tag">optional</span></td><td class="ptype">string</td><td class="pdesc">Si se omite, analiza todos los comercios juntos</td></tr>
+        </table>
+      </div>
+      <div class="ep-section">
+        <div class="ep-section-title">Curl</div>
+        <pre style="margin-bottom:8px">curl "http://localhost:8000/api/alerta-proactiva?id_comercio=COM001"</pre>
+        <pre>curl "http://localhost:8000/api/alerta-proactiva"</pre>
+      </div>
+      <div class="ep-section">
+        <div class="resp-meta"><span class="status-badge s200">200</span><span style="font-size:12px;color:var(--color-text-secondary)">tendencia positiva</span></div>
+        <pre>{
+  "titulo": "¡SuperFresh va en aumento! 📈",
+  "descripcion": "Tus ventas subieron un 12.3% respecto al mes pasado.",
+  "tipo": "positiva"
+}</pre>
+        <div class="resp-meta" style="margin-top:10px"><span class="status-badge s200">200</span><span style="font-size:12px;color:var(--color-text-secondary)">tendencia negativa</span></div>
+        <pre>{
+  "titulo": "Alerta en ModaMundo 📉",
+  "descripcion": "Tus ventas bajaron un 15.7% respecto al mes pasado.",
+  "tipo": "negativa"
+}</pre>
+        <div class="resp-meta" style="margin-top:10px"><span class="status-badge s200">200</span><span style="font-size:12px;color:var(--color-text-secondary)">consejo</span></div>
+        <pre>{
+  "titulo": "Consejo para Sabores &amp; Co. 💡",
+  "descripcion": "Los Saturdays son tus días con más ventas. Considera promociones.",
+  "tipo": "consejo"
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET /api/transacciones -->
+  <div class="endpoint-card">
+    <div class="ep-header" onclick="toggle(this)">
+      <span class="method get">GET</span>
+      <span class="ep-path">/api/transacciones</span>
+      <span class="ep-desc">Listado paginado de transacciones</span>
+      <span class="chevron">▶</span>
+    </div>
+    <div class="ep-body">
+      <div class="ep-section">
+        <div class="ep-section-title">Query params</div>
+        <table class="param-table">
+          <tr><td class="pname">limit<span class="optional-tag">optional</span></td><td class="ptype">int</td><td class="pdesc">Número de registros a devolver. Default: 100, mínimo: 1, máximo: 1000</td></tr>
+          <tr><td class="pname">id_comercio<span class="optional-tag">optional</span></td><td class="ptype">string</td><td class="pdesc">Filtra por comercio. Si se omite, devuelve de todos</td></tr>
+        </table>
+      </div>
+      <div class="ep-section">
+        <div class="ep-section-title">Curl</div>
+        <pre style="margin-bottom:8px">curl "http://localhost:8000/api/transacciones?id_comercio=COM001&limit=5"</pre>
+        <pre>curl "http://localhost:8000/api/transacciones?limit=1000"</pre>
+      </div>
+      <div class="ep-section">
+        <div class="resp-meta"><span class="status-badge s200">200</span></div>
+        <pre>{
+  "transacciones": [
+    {
+      "fecha_transaccion": "2024-01-01T00:00:00",
+      "id_comercio": "COM001",
+      "id_cliente": "CLI0387",
+      "monto_transaccion": 5.08,
+      "descripcion_producto_o_servicio": "Pan y panadería",
+      "categoria_producto_o_servicio": "Alimentos",
+      "metodo_pago": "Efectivo",
+      "hora_transaccion": "13:30:34",
+      "ciudad_transaccion": "Quito",
+      "latitud": -0.185617,
+      "longitud": -78.463579,
+      "nombre_comercio": "SuperFresh",
+      "rubro": "supermercado"
+    }
+  ],
+  "total": 2100
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 2rem; padding: 12px 16px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); font-size: 13px; color: var(--color-text-secondary);">
+    Docs interactivos disponibles en <code style="font-family: var(--font-mono); color: var(--color-text-primary);">http://localhost:8000/docs</code> (Swagger UI generado por FastAPI)
+  </div>
+</div>
+
+<script>
+function toggle(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+</script>

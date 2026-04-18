@@ -1,6 +1,6 @@
 """
 Servidor de Testing Local - Mi Contador de Bolsillo (Deuna)
-FastAPI + Pandas + Deepseek API para analizar datasets y responder preguntas de negocio.
+FastAPI + Pandas + Groq API para analizar datasets y responder preguntas de negocio.
 """
 
 import sys
@@ -28,15 +28,15 @@ from pydantic import BaseModel
 # Cargar variables de entorno
 load_dotenv()
 
-# Configuración de Deepseek API
-DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API")
-DEEPSEEK_API_URL = "https://api.deepseek.com/chat/completions"
-DEEPSEEK_MODEL = "deepseek-chat"  # Modelo más rápido (non-thinking mode)
+# Configuración de Groq API
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.1-8b-instant"  # Ultrarrápido y preciso con datos estructurados
 
 # Configuración
 app = FastAPI(
     title="Mi Contador de Bolsillo - API",
-    description="Asistente conversacional para micro-comerciantes ecuatorianos con Deepseek AI",
+    description="Asistente conversacional para micro-comerciantes ecuatorianos con Groq AI",
     version="2.0.0"
 )
 
@@ -103,10 +103,10 @@ class AlertaProactiva(BaseModel):
     tipo: str
 
 
-# ==================== MOTOR DE ANÁLISIS CON DEEPSEEK ====================
+# ==================== MOTOR DE ANÁLISIS CON GROQ ====================
 
 class AnalizadorNegocio:
-    """Motor para analizar preguntas de negocio usando Deepseek AI."""
+    """Motor para analizar preguntas de negocio usando Groq AI."""
 
     def __init__(self, df: pd.DataFrame, df_clientes: pd.DataFrame, df_comercios: pd.DataFrame):
         self.df = df
@@ -252,49 +252,65 @@ Ciudad: {c['ciudad']}
         if datos['clientes']['distribucion_genero']:
             contexto += "• Género: " + ", ".join([f"{k}: {v}" for k, v in datos['clientes']['distribucion_genero'].items()]) + "\n"
 
-        contexto += "\nINSTRUCCIONES: Responde basándote ÚNICAMENTE en estos datos. Sé conciso y directo. Si preguntan cálculos, usa estos valores exactos."
+        contexto += (
+            "\n=== INSTRUCCIONES ESTRICTAS PARA LA IA ===\n"
+            "- Responde ÚNICAMENTE con datos presentes en este contexto.\n"
+            "- Si el dato no está aquí, di 'No tengo ese dato disponible'.\n"
+            "- NO inventes cifras, porcentajes ni tendencias.\n"
+            "- Sé conciso: máximo 3-4 oraciones.\n"
+            "- Usa los valores numéricos exactos proporcionados arriba."
+        )
 
         return contexto
 
-    def consultar_deepseek(self, mensaje: str, contexto: str) -> str:
-        """Consulta a Deepseek API."""
-        if not DEEPSEEK_API_KEY:
-            return "Error: No se ha configurado la API key de Deepseek (DEEPSEEK_API)."
+    def consultar_groq(self, mensaje: str, contexto: str) -> str:
+        """Consulta a Groq API."""
+        if not GROQ_API_KEY:
+            return "Error: No se ha configurado GROQ_API_KEY en el archivo .env"
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {DEEPSEEK_API_KEY}"
+            "Authorization": f"Bearer {GROQ_API_KEY}"
         }
 
         data = {
-            "model": DEEPSEEK_MODEL,
+            "model": GROQ_MODEL,
             "messages": [
                 {
                     "role": "system",
-                    "content": "Eres un asistente experto en análisis de datos para micro-comerciantes ecuatorianos. Responde de manera clara, concisa y útil. Usa máximo 3-4 oraciones."
+                    "content": (
+                        "Eres un asistente de análisis financiero para micro-comerciantes ecuatorianos. "
+                        "Tu única fuente de verdad son los datos que el usuario te proporciona en cada mensaje. "
+                        "NUNCA inventes números, porcentajes, nombres de productos ni tendencias. "
+                        "Si no encuentras el dato en el contexto, responde exactamente: 'No tengo ese dato disponible.' "
+                        "Responde siempre en español, de forma clara y en máximo 4 oraciones."
+                    )
                 },
                 {
                     "role": "user",
-                    "content": f"{contexto}\n\nPREGUNTA: {mensaje}"
+                    "content": f"{contexto}\n\nPREGUNTA DEL COMERCIANTE: {mensaje}"
                 }
             ],
-            "max_tokens": 500,
-            "temperature": 0.5,
+            "max_tokens": 512,
+            "temperature": 0.2,   # Baja temperatura = menos alucinaciones
+            "top_p": 0.9,
             "stream": False
         }
 
         try:
-            response = requests.post(DEEPSEEK_API_URL, headers=headers, json=data, timeout=30)
+            response = requests.post(GROQ_API_URL, headers=headers, json=data, timeout=30)
             response.raise_for_status()
             result = response.json()
             return result["choices"][0]["message"]["content"]
+        except requests.exceptions.Timeout:
+            return "Error: La solicitud tardó demasiado. Intenta de nuevo."
         except requests.exceptions.RequestException as e:
-            return f"Error de conexión con Deepseek: {str(e)}"
+            return f"Error de conexión con Groq: {str(e)}"
         except (KeyError, IndexError) as e:
             return f"Error procesando respuesta: {str(e)}"
 
     def responder(self, mensaje: str, id_comercio: Optional[str] = None) -> ChatResponse:
-        """Genera una respuesta usando Deepseek AI."""
+        """Genera una respuesta usando Groq AI."""
         if not id_comercio:
             return ChatResponse(
                 respuesta="Por favor selecciona un comercio primero. Puedes ver los disponibles en /api/comercios",
@@ -312,7 +328,7 @@ Ciudad: {c['ciudad']}
             )
 
         contexto = self.generar_contexto_ia(datos)
-        respuesta = self.consultar_deepseek(mensaje, contexto)
+        respuesta = self.consultar_groq(mensaje, contexto)
 
         return ChatResponse(
             respuesta=respuesta,
@@ -375,8 +391,8 @@ async def health():
     return {
         "status": "ok",
         "timestamp": datetime.now().isoformat(),
-        "ai_provider": "deepseek",
-        "model": DEEPSEEK_MODEL,
+        "ai_provider": "groq",
+        "model": GROQ_MODEL,
         "datos": {
             "transacciones": len(df_transacciones),
             "clientes": len(df_clientes),
@@ -421,8 +437,14 @@ async def get_comercio(id_comercio: str):
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """
-    Endpoint principal para el chatbot con Deepseek AI.
+    Endpoint principal para el chatbot con Groq AI.
     Requiere un mensaje y opcionalmente un id_comercio.
+
+    Ejemplo de body:
+    {
+        "mensaje": "¿Cuál fue mi producto más vendido?",
+        "id_comercio": "COM001"
+    }
     """
     try:
         respuesta = analizador.responder(request.mensaje, request.id_comercio)
@@ -466,19 +488,19 @@ async def get_transacciones(
 if __name__ == "__main__":
     import uvicorn
     print("\n" + "="*60)
-    print("🚀 Mi Contador de Bolsillo - Servidor con Deepseek AI")
+    print("🚀 Mi Contador de Bolsillo - Servidor con Groq AI")
     print("="*60)
-    print(f"\n🤖 Modelo: {DEEPSEEK_MODEL}")
-    print(f"🔑 API Key: {'✅ Configurada' if DEEPSEEK_API_KEY else '❌ No configurada'}")
+    print(f"\n🤖 Modelo: {GROQ_MODEL}")
+    print(f"🔑 API Key: {'✅ Configurada' if GROQ_API_KEY else '❌ No configurada — revisa tu .env'}")
     print("\n📍 URLs disponibles:")
     print("   • Frontend:    http://localhost:8000")
     print("   • API Docs:    http://localhost:8000/docs")
     print("   • Health:      http://localhost:8000/api/health")
     print("   • Comercios:   http://localhost:8000/api/comercios")
     print("\n💡 Ejemplos de uso:")
-    print("   • Listar comercios: GET /api/comercios")
-    print("   • Datos de comercio: GET /api/comercio/COM001")
-    print("   • Chat: POST /api/chat")
+    print("   • Listar comercios: GET  /api/comercios")
+    print("   • Datos de comercio: GET  /api/comercio/COM001")
+    print("   • Chat: POST /api/chat  { mensaje, id_comercio }")
     print("\n" + "="*60 + "\n")
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
