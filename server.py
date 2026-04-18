@@ -315,4 +315,4 @@ if __name__ == "__main__":
     print("   • 🤖 Chat IA (POST):       http://localhost:8000/api/chat")
     print("   • 🏢 Comercios (GET):      http://localhost:8000/api/comercios")
     print("\n" + "="*65 + "\n")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)

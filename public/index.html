@@ -81,6 +81,41 @@
         .balance-amount i { font-size: 16px; color: rgba(255, 255, 255, 0.7); cursor: pointer;}
         .balance-chevron { font-size: 18px; color: var(--deuna-turquoise); }
 
+        /* SELECTOR DE CUENTAS */
+        .account-selector-container {
+            position: relative;
+            min-width: 140px;
+        }
+        .account-selector {
+            width: 100%;
+            padding: 10px 32px 10px 14px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            color: #FFFFFF;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .account-selector:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .account-selector option {
+            background: var(--deuna-purple-rich);
+            color: #FFFFFF;
+            font-size: 13px;
+            padding: 10px;
+        }
+        .account-selector option:disabled {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         /* GRID ACCIONES */
         .actions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 16px; }
         .action-item { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; cursor: pointer; padding: 12px 8px; border-radius: 16px; transition: background 0.2s; }
@@ -126,14 +161,99 @@
         .nav-item:hover, .nav-item.active { color: var(--deuna-turquoise); font-weight: 600; }
         .nav-item i { font-size: 20px; }
 
-        /* TOAST */
-        .toast { 
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); 
-            background: var(--deuna-purple-rich); color: #FFFFFF; padding: 12px 24px; 
-            border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 1000; opacity: 0; pointer-events: none; 
-            transition: opacity 0.3s ease, bottom 0.3s ease; box-shadow: 0 8px 24px rgba(76, 29, 128, 0.4); white-space: nowrap; 
+        /* TOAST - Siempre por encima de todo */
+        .toast {
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            background: var(--deuna-purple-rich); color: #FFFFFF; padding: 12px 24px;
+            border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 9999; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease, bottom 0.3s ease; box-shadow: 0 8px 24px rgba(76, 29, 128, 0.4); white-space: nowrap;
         }
         .toast.show { opacity: 1; bottom: 110px; }
+
+        /* MODAL DE SELECCIÓN DE CUENTA - INTEGRADO */
+        .account-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
+            z-index: 2000; display: none; justify-content: center; align-items: flex-end;
+            animation: fadeInOverlay 0.2s ease;
+        }
+        .account-modal-overlay.active { display: flex; }
+        @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+        .account-modal {
+            width: 100%; max-width: 420px; max-height: 85vh;
+            background: var(--bg-base); border-radius: 24px 24px 0 0;
+            display: flex; flex-direction: column;
+            animation: slideUpModal 0.3s ease; overflow: hidden;
+        }
+        @keyframes slideUpModal { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .account-modal-header {
+            padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .account-modal-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+        .account-modal-close {
+            width: 36px; height: 36px; border-radius: 50%; border: none;
+            background: var(--bg-secondary); color: var(--text-secondary);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+        .account-modal-close:hover { background: var(--deuna-purple-light); color: var(--deuna-purple); }
+
+        .account-modal-body { flex: 1; overflow-y: auto; padding: 16px; }
+
+        .account-option {
+            display: flex; align-items: center; gap: 16px; padding: 16px;
+            border-radius: 16px; cursor: pointer; transition: all 0.2s;
+            border: 2px solid transparent; margin-bottom: 8px;
+        }
+        .account-option:hover { background: var(--bg-secondary); }
+        .account-option.selected {
+            background: var(--deuna-purple-light); border-color: var(--deuna-purple);
+        }
+        .account-option-avatar {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--deuna-purple) 0%, var(--deuna-purple-rich) 100%);
+            color: #FFFFFF; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 14px;
+        }
+        .account-option-info { flex: 1; }
+        .account-option-name { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 2px; }
+        .account-option-id { font-size: 12px; color: var(--text-muted); }
+        .account-option-check {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--deuna-purple); color: #FFFFFF;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+        }
+        .account-option:not(.selected) .account-option-check { display: none; }
+
+        .account-balance-preview {
+            margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--deuna-turquoise);
+        }
+
+        .account-modal-footer {
+            padding: 16px 24px 24px; border-top: 1px solid var(--glass-border);
+            display: flex; gap: 12px;
+        }
+        .account-btn {
+            flex: 1; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; border: none;
+        }
+        .account-btn-secondary {
+            background: var(--bg-secondary); color: var(--text-primary);
+        }
+        .account-btn-secondary:hover { background: #E5E7EB; }
+        .account-btn-primary {
+            background: var(--deuna-purple); color: #FFFFFF;
+        }
+        .account-btn-primary:hover { background: var(--deuna-purple-rich); }
+
+        @media (min-width: 768px) {
+            .account-modal-overlay { align-items: center; }
+            .account-modal { border-radius: 24px; max-height: 600px; }
+        }
 
         /* CHAT BASE */
         .chat-container { display: flex; flex-direction: column; flex: 1; height: 100%; background: var(--bg-base); }
@@ -263,12 +383,19 @@
             <div class="phone-panel">
                 <div id="screen-home" class="screen">
                     <div class="home-content">
-                        <div class="balance-card" onclick="showMockMessage('Detalle de Movimientos')">
-                            <div>
-                                <div class="balance-label">Saldo disponible</div>
-                                <div class="balance-amount">$2.00 <i class="fa-regular fa-eye-slash" onclick="event.stopPropagation(); showMockMessage('Ocultar Saldo')"></i></div>
+                        <div class="balance-card" onclick="openAccountModal()">
+                            <div style="flex: 1;">
+                                <div class="balance-label" id="balance-label-cuenta">Selecciona una cuenta</div>
+                                <div class="balance-amount">
+                                    <span id="balance-amount-value">$0.00</span>
+                                    <i class="fa-regular fa-eye-slash" onclick="event.stopPropagation(); toggleSaldoVisibility()" id="eye-icon" style="cursor: pointer;"></i>
+                                </div>
+                                <div class="balance-cuenta-info" id="balance-cuenta-info" style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 4px;"></div>
                             </div>
-                            <i class="fa-solid fa-chevron-right balance-chevron"></i>
+                            <div style="display: flex; align-items: center; gap: 8px; pointer-events: none;">
+                                <span id="current-account-badge" style="background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; color: #FFFFFF;">COM001</span>
+                                <i class="fa-solid fa-chevron-right" style="color: var(--deuna-turquoise); font-size: 14px;"></i>
+                            </div>
                         </div>
 
                         <div class="actions-grid">
@@ -344,18 +471,173 @@
         <div class="nav-item" onclick="showMockMessage('Mi Perfil y Ajustes')"><i class="fa-regular fa-circle-user"></i><span>Tú</span></div>
     </nav>
 
+    <!-- MODAL DE SELECCIÓN DE CUENTA -->
+    <div id="accountModal" class="account-modal-overlay" onclick="closeAccountModal(event)">
+        <div class="account-modal" onclick="event.stopPropagation()">
+            <div class="account-modal-header">
+                <div class="account-modal-title">Gestionar Cuentas</div>
+                <button class="account-modal-close" onclick="closeAccountModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="account-modal-body">
+                <div class="account-option selected" data-account="COM001" onclick="selectAccountOption('COM001')">
+                    <div class="account-option-avatar">SF</div>
+                    <div class="account-option-info">
+                        <div class="account-option-name">SuperFresh</div>
+                        <div class="account-option-id">COM001 • Alimentación • Quito</div>
+                        <div class="account-balance-preview" id="preview-COM001">Cargando...</div>
+                    </div>
+                    <div class="account-option-check"><i class="fa-solid fa-check"></i></div>
+                </div>
+                <div class="account-option" data-account="COM002" onclick="selectAccountOption('COM002')">
+                    <div class="account-option-avatar">MM</div>
+                    <div class="account-option-info">
+                        <div class="account-option-name">ModaMundo</div>
+                        <div class="account-option-id">COM002 • Retail • Guayaquil</div>
+                        <div class="account-balance-preview" id="preview-COM002">Cargando...</div>
+                    </div>
+                    <div class="account-option-check"><i class="fa-solid fa-check"></i></div>
+                </div>
+                <div class="account-option" data-account="COM003" onclick="selectAccountOption('COM003')">
+                    <div class="account-option-avatar">S</div>
+                    <div class="account-option-info">
+                        <div class="account-option-name">Sabores & Co.</div>
+                        <div class="account-option-id">COM003 • Restaurantes • Cuenca</div>
+                        <div class="account-balance-preview" id="preview-COM003">Cargando...</div>
+                    </div>
+                    <div class="account-option-check"><i class="fa-solid fa-check"></i></div>
+                </div>
+            </div>
+            <div class="account-modal-footer">
+                <button class="account-btn account-btn-secondary" onclick="closeAccountModal()">Cancelar</button>
+                <button class="account-btn account-btn-primary" onclick="confirmAccountChange()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
     const API_BASE = 'http://localhost:8000/api';
-    const COMERCIO_ID = 'COM001'; 
+    let COMERCIO_ID = null;
+    let saldoVisible = true;
+    let saldoActual = 0;
+    let nombreComercio = '';
+
+    let selectedAccountTemp = 'COM001';
+    const accountBalances = {};
 
     document.addEventListener("DOMContentLoaded", () => {
-        fetchAlertaProactiva();
-        if (window.innerWidth >= 768) fetchDashboardMetrics();
+        // Por defecto seleccionar COM001
+        cambiarCuenta('COM001');
+        loadAccountBalances();
     });
 
+    async function loadAccountBalances() {
+        // Cargar saldos de todas las cuentas para el modal
+        const accounts = ['COM001', 'COM002', 'COM003'];
+        for (const acc of accounts) {
+            try {
+                const res = await fetch(`${API_BASE}/comercio/${acc}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    accountBalances[acc] = data.metricas.saldo_actual;
+                    const previewEl = document.getElementById(`preview-${acc}`);
+                    if (previewEl) {
+                        previewEl.textContent = `Saldo: $${accountBalances[acc].toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                    }
+                }
+            } catch (e) {
+                console.error(`Error cargando cuenta ${acc}:`, e);
+            }
+        }
+    }
+
+    function openAccountModal() {
+        selectedAccountTemp = COMERCIO_ID || 'COM001';
+        updateAccountSelectionUI();
+        const modal = document.getElementById('accountModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAccountModal(event) {
+        if (event && event.target !== event.currentTarget) return;
+        const modal = document.getElementById('accountModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function selectAccountOption(accountId) {
+        selectedAccountTemp = accountId;
+        updateAccountSelectionUI();
+    }
+
+    function updateAccountSelectionUI() {
+        document.querySelectorAll('.account-option').forEach(opt => {
+            if (opt.dataset.account === selectedAccountTemp) {
+                opt.classList.add('selected');
+            } else {
+                opt.classList.remove('selected');
+            }
+        });
+    }
+
+    async function confirmAccountChange() {
+        await cambiarCuenta(selectedAccountTemp);
+        document.getElementById('current-account-badge').textContent = selectedAccountTemp;
+        closeAccountModal();
+        showMockMessage(`Cuenta cambiada a ${selectedAccountTemp}`);
+    }
+
+    async function cambiarCuenta(idComercio) {
+        COMERCIO_ID = idComercio;
+
+        try {
+            // Obtener datos del comercio
+            const res = await fetch(`${API_BASE}/comercio/${COMERCIO_ID}`);
+            if (!res.ok) throw new Error("Comercio no encontrado");
+            const data = await res.json();
+
+            saldoActual = data.metricas.saldo_actual;
+            nombreComercio = data.comercio.nombre;
+
+            // Actualizar UI
+            document.getElementById('balance-label-cuenta').textContent = `Cuenta: ${nombreComercio}`;
+            document.getElementById('balance-cuenta-info').textContent = `${data.comercio.rubro} • ${data.comercio.ciudad}`;
+            const currentBadge = document.getElementById('current-account-badge');
+            if (currentBadge) currentBadge.textContent = COMERCIO_ID;
+            actualizarSaldoUI();
+
+            // Recargar datos relacionados
+            await fetchAlertaProactiva();
+            if (window.innerWidth >= 768) await fetchDashboardMetrics();
+
+        } catch (error) {
+            console.error("Error al cargar cuenta:", error);
+            document.getElementById('balance-label-cuenta').textContent = "Error al cargar cuenta";
+        }
+    }
+
+    function toggleSaldoVisibility() {
+        saldoVisible = !saldoVisible;
+        const eyeIcon = document.getElementById('eye-icon');
+        eyeIcon.className = saldoVisible ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+        actualizarSaldoUI();
+    }
+
+    function actualizarSaldoUI() {
+        const balanceElement = document.getElementById('balance-amount-value');
+        if (saldoVisible) {
+            balanceElement.textContent = `$${saldoActual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            balanceElement.style.color = '#FFFFFF';
+        } else {
+            balanceElement.textContent = '****';
+            balanceElement.style.color = 'rgba(255,255,255,0.5)';
+        }
+    }
+
     async function fetchAlertaProactiva() {
+        if (!COMERCIO_ID) return;
         try {
             const res = await fetch(`${API_BASE}/alerta-proactiva?id_comercio=${COMERCIO_ID}`);
             if (!res.ok) throw new Error("Error de red al consultar alerta");
@@ -392,18 +674,26 @@
 
     let pieChartInstance = null;
     async function fetchDashboardMetrics() {
+        if (!COMERCIO_ID) return;
         try {
             const res = await fetch(`${API_BASE}/comercio/${COMERCIO_ID}`);
             if (!res.ok) throw new Error("Comercio no encontrado");
             const data = await res.json();
-            
-            document.getElementById('kpi-ventas').textContent = `$${data.metricas.total_ventas.toLocaleString()}`;
-            document.getElementById('kpi-ticket').textContent = `$${data.metricas.ticket_promedio}`;
-            document.getElementById('kpi-tx').textContent = data.metricas.total_transacciones.toLocaleString();
 
-            const metodos = Object.keys(data.metodos_pago.porcentajes);
-            const valores = Object.values(data.metodos_pago.porcentajes);
-            renderPieChart(metodos, valores);
+            const metricas = data.metricas || {};
+            const ventas = metricas.saldo_actual || 0;
+            const ticket = metricas.ticket_promedio || 0;
+            const tx = metricas.total_transacciones || 0;
+
+            document.getElementById('kpi-ventas').textContent = `$${ventas.toLocaleString()}`;
+            document.getElementById('kpi-ticket').textContent = `$${ticket}`;
+            document.getElementById('kpi-tx').textContent = tx.toLocaleString();
+
+            const metodosPago = data.metodos_pago || {};
+            const porcentajes = metodosPago.porcentajes || {};
+            const metodos = Object.keys(porcentajes);
+            const valores = Object.values(porcentajes);
+            renderPieChart(metodos.length ? metodos : ['Sin datos'], valores.length ? valores : [100]);
         } catch (error) {
             console.error("Error cargando dashboard:", error);
         }
