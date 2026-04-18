@@ -1,0 +1,66 @@
+GLOSARIO DE TÉRMINOS DE NEGOCIO — deuna! mi bolsillo
+=======================================================
+
+Ticket promedio
+  Valor monetario medio de una transacción en un periodo dado.
+  Fórmula: Suma de montos / Número de transacciones.
+
+Churn (Tasa de abandono)
+  Porcentaje de clientes que dejan de comprar en un periodo definido.
+
+CAC – Costo de Adquisición de Cliente
+  Inversión total en marketing y ventas dividida entre los nuevos clientes obtenidos.
+
+LTV – Lifetime Value (Valor del Tiempo de Vida del Cliente)
+  Ingreso neto proyectado que generará un cliente durante toda su relación con el comercio.
+  Aproximación: Ticket promedio × Frecuencia de compra anual × Años de vida del cliente.
+
+Segmentación de clientes
+  Agrupación de clientes con características similares (demográficas, conductuales, de valor).
+
+Análisis RFM
+  Técnica que clasifica clientes según Recencia (última compra), Frecuencia y Monto gastado.
+
+Análisis de cohortes
+  Seguimiento de grupos de clientes que comparten un evento inicial (ej: mes de primera compra)
+  para comparar comportamiento a lo largo del tiempo.
+
+Tasa de retención
+  Porcentaje de clientes activos que repiten compra en el siguiente periodo.
+
+Frecuencia de visita
+  Número promedio de transacciones de un cliente en un periodo determinado.
+
+Categoría de producto
+  Clasificación del producto o servicio comprado (Alimentos, Ropa, Bebidas, Hogar, etc.).
+
+Método de pago
+  Instrumento utilizado en la transacción: Tarjeta de crédito, débito, efectivo o transferencia.
+
+GMV – Gross Merchandise Value
+  Valor bruto total de las transacciones procesadas en un periodo.
+
+Tasa de conversión
+  Proporción de visitas o interacciones que resultan en una compra efectiva.
+
+Up-sell / Cross-sell
+  Up-sell: vender un producto de mayor valor.
+  Cross-sell: vender productos complementarios en la misma transacción.
+
+NPS – Net Promoter Score
+  Índice que mide la probabilidad de que un cliente recomiende el comercio (0-10).
+
+Recencia
+  Número de días transcurridos desde la última transacción de un cliente.
+
+Estacionalidad
+  Variación regular de las ventas según época del año (temporada escolar, Navidad, etc.).
+
+Mapa de calor transaccional
+  Visualización geoespacial de la concentración de transacciones por zona geográfica.
+
+Ingreso estimado del cliente
+  Aproximación del nivel socioeconómico del cliente, útil para segmentación.
+
+Dashboard de KPIs
+  Panel visual con indicadores clave de rendimiento del negocio (ticket, churn, retención, etc.).

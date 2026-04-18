@@ -1,0 +1,401 @@
+id_cliente,edad,genero,ingresos_estimados,frecuencia_visita
+CLI0001,58,M,802,Mensual
+CLI0002,33,M,885,Mensual
+CLI0003,61,No especificado,2933,Semanal
+CLI0004,45,M,822,Semanal
+CLI0005,32,No especificado,654,Mensual
+CLI0006,63,No especificado,2932,Quincenal
+CLI0007,46,No especificado,1839,Ocasional
+CLI0008,18,M,616,Quincenal
+CLI0009,27,M,1289,Semanal
+CLI0010,42,M,2170,Ocasional
+CLI0011,56,F,877,Mensual
+CLI0012,52,M,2250,Semanal
+CLI0013,36,No especificado,1340,Mensual
+CLI0014,63,M,887,Mensual
+CLI0015,36,M,1076,Ocasional
+CLI0016,42,F,2557,Mensual
+CLI0017,41,M,2216,Quincenal
+CLI0018,60,F,992,Mensual
+CLI0019,28,No especificado,1101,Semanal
+CLI0020,42,F,2981,Semanal
+CLI0021,38,M,1069,Ocasional
+CLI0022,38,F,1148,Semanal
+CLI0023,54,No especificado,1988,Semanal
+CLI0024,49,F,2579,Semanal
+CLI0025,26,M,1749,Mensual
+CLI0026,65,No especificado,2454,Ocasional
+CLI0027,43,F,1598,Ocasional
+CLI0028,26,No especificado,1610,Semanal
+CLI0029,21,M,478,Mensual
+CLI0030,61,F,960,Quincenal
+CLI0031,56,F,2867,Semanal
+CLI0032,53,M,1169,Mensual
+CLI0033,52,F,2093,Semanal
+CLI0034,45,M,2558,Diaria
+CLI0035,64,No especificado,1778,Ocasional
+CLI0036,29,No especificado,817,Ocasional
+CLI0037,37,No especificado,1639,Mensual
+CLI0038,27,F,930,Mensual
+CLI0039,51,M,2027,Quincenal
+CLI0040,25,F,1229,Semanal
+CLI0041,33,No especificado,761,Semanal
+CLI0042,49,M,2881,Ocasional
+CLI0043,26,No especificado,1573,Ocasional
+CLI0044,28,F,1680,Ocasional
+CLI0045,45,M,2908,Ocasional
+CLI0046,62,M,1976,Quincenal
+CLI0047,60,No especificado,2229,Quincenal
+CLI0048,51,F,1195,Semanal
+CLI0049,22,F,410,Mensual
+CLI0050,32,No especificado,1051,Diaria
+CLI0051,63,No especificado,941,Semanal
+CLI0052,20,F,436,Mensual
+CLI0053,35,No especificado,1594,Semanal
+CLI0054,26,No especificado,1769,Mensual
+CLI0055,33,F,1433,Semanal
+CLI0056,24,No especificado,620,Quincenal
+CLI0057,44,F,921,Mensual
+CLI0058,59,M,948,Quincenal
+CLI0059,39,M,1109,Semanal
+CLI0060,52,F,1274,Quincenal
+CLI0061,35,F,1111,Ocasional
+CLI0062,22,F,681,Semanal
+CLI0063,59,No especificado,760,Ocasional
+CLI0064,33,M,1432,Quincenal
+CLI0065,31,F,720,Semanal
+CLI0066,18,F,535,Ocasional
+CLI0067,47,F,2432,Mensual
+CLI0068,64,No especificado,2693,Semanal
+CLI0069,36,M,719,Mensual
+CLI0070,52,M,1984,Semanal
+CLI0071,55,F,2759,Ocasional
+CLI0072,51,M,932,Ocasional
+CLI0073,23,M,435,Mensual
+CLI0074,61,M,2353,Semanal
+CLI0075,54,M,862,Mensual
+CLI0076,44,No especificado,2841,Quincenal
+CLI0077,34,M,1243,Semanal
+CLI0078,43,M,1928,Quincenal
+CLI0079,22,M,634,Mensual
+CLI0080,54,M,1000,Mensual
+CLI0081,50,F,1242,Ocasional
+CLI0082,22,M,589,Semanal
+CLI0083,46,No especificado,1939,Mensual
+CLI0084,59,No especificado,732,Mensual
+CLI0085,53,F,1124,Ocasional
+CLI0086,26,F,836,Ocasional
+CLI0087,65,No especificado,1336,Semanal
+CLI0088,56,M,2104,Semanal
+CLI0089,58,F,2770,Quincenal
+CLI0090,21,M,616,Ocasional
+CLI0091,20,M,570,Ocasional
+CLI0092,58,F,1361,Mensual
+CLI0093,53,No especificado,2451,Mensual
+CLI0094,25,M,905,Mensual
+CLI0095,41,No especificado,2963,Semanal
+CLI0096,26,M,1231,Quincenal
+CLI0097,20,F,507,Mensual
+CLI0098,60,M,2148,Ocasional
+CLI0099,44,No especificado,1333,Ocasional
+CLI0100,33,M,962,Ocasional
+CLI0101,19,M,570,Ocasional
+CLI0102,44,No especificado,1716,Semanal
+CLI0103,62,M,2266,Ocasional
+CLI0104,48,M,1517,Ocasional
+CLI0105,47,F,1950,Ocasional
+CLI0106,32,M,648,Mensual
+CLI0107,43,F,1841,Ocasional
+CLI0108,35,F,1643,Quincenal
+CLI0109,52,F,813,Semanal
+CLI0110,34,M,1789,Ocasional
+CLI0111,34,M,822,Mensual
+CLI0112,40,No especificado,1984,Quincenal
+CLI0113,50,M,2277,Ocasional
+CLI0114,30,F,690,Mensual
+CLI0115,18,No especificado,675,Mensual
+CLI0116,65,No especificado,1507,Quincenal
+CLI0117,22,No especificado,569,Mensual
+CLI0118,60,M,1930,Mensual
+CLI0119,60,F,2036,Quincenal
+CLI0120,36,No especificado,860,Semanal
+CLI0121,60,F,1412,Mensual
+CLI0122,37,F,1722,Ocasional
+CLI0123,37,F,1030,Quincenal
+CLI0124,55,No especificado,2019,Quincenal
+CLI0125,46,No especificado,1575,Mensual
+CLI0126,65,M,1047,Semanal
+CLI0127,60,No especificado,2072,Semanal
+CLI0128,33,No especificado,1235,Semanal
+CLI0129,30,M,650,Diaria
+CLI0130,48,No especificado,998,Quincenal
+CLI0131,58,No especificado,1496,Mensual
+CLI0132,42,F,2336,Semanal
+CLI0133,59,No especificado,722,Ocasional
+CLI0134,24,F,512,Semanal
+CLI0135,62,No especificado,2602,Semanal
+CLI0136,33,M,1534,Semanal
+CLI0137,47,No especificado,2875,Ocasional
+CLI0138,56,F,2512,Mensual
+CLI0139,64,No especificado,2447,Ocasional
+CLI0140,53,F,1351,Mensual
+CLI0141,48,F,1761,Ocasional
+CLI0142,58,F,2835,Quincenal
+CLI0143,33,F,1500,Semanal
+CLI0144,36,M,1156,Quincenal
+CLI0145,52,M,1266,Semanal
+CLI0146,42,No especificado,1325,Mensual
+CLI0147,22,F,608,Quincenal
+CLI0148,47,F,955,Semanal
+CLI0149,44,F,780,Ocasional
+CLI0150,54,F,2653,Diaria
+CLI0151,40,F,2297,Ocasional
+CLI0152,44,No especificado,2936,Ocasional
+CLI0153,32,F,1049,Semanal
+CLI0154,49,M,2292,Quincenal
+CLI0155,61,F,1376,Ocasional
+CLI0156,26,No especificado,1693,Diaria
+CLI0157,43,No especificado,811,Semanal
+CLI0158,45,M,2591,Semanal
+CLI0159,34,F,1270,Semanal
+CLI0160,38,F,1376,Semanal
+CLI0161,44,F,1035,Quincenal
+CLI0162,65,No especificado,913,Ocasional
+CLI0163,40,M,981,Ocasional
+CLI0164,59,M,827,Ocasional
+CLI0165,30,M,912,Semanal
+CLI0166,48,No especificado,1168,Mensual
+CLI0167,31,F,1124,Ocasional
+CLI0168,28,No especificado,834,Ocasional
+CLI0169,28,F,821,Mensual
+CLI0170,37,No especificado,1368,Quincenal
+CLI0171,63,M,1011,Mensual
+CLI0172,58,M,1117,Mensual
+CLI0173,37,No especificado,847,Ocasional
+CLI0174,54,M,2122,Mensual
+CLI0175,60,F,982,Mensual
+CLI0176,39,M,1460,Ocasional
+CLI0177,24,F,585,Mensual
+CLI0178,47,No especificado,1326,Quincenal
+CLI0179,64,No especificado,1806,Mensual
+CLI0180,52,F,2604,Quincenal
+CLI0181,64,No especificado,1799,Quincenal
+CLI0182,33,M,1171,Ocasional
+CLI0183,33,F,1767,Mensual
+CLI0184,42,F,817,Quincenal
+CLI0185,38,M,1598,Semanal
+CLI0186,34,F,1172,Ocasional
+CLI0187,62,F,2976,Diaria
+CLI0188,30,M,1094,Mensual
+CLI0189,49,No especificado,1684,Mensual
+CLI0190,59,No especificado,2710,Quincenal
+CLI0191,19,M,550,Semanal
+CLI0192,62,M,1954,Mensual
+CLI0193,41,F,2967,Mensual
+CLI0194,45,No especificado,2954,Quincenal
+CLI0195,62,F,1809,Quincenal
+CLI0196,32,M,994,Quincenal
+CLI0197,65,No especificado,1458,Semanal
+CLI0198,65,F,1832,Mensual
+CLI0199,51,No especificado,1859,Ocasional
+CLI0200,30,F,1065,Quincenal
+CLI0201,37,M,1693,Semanal
+CLI0202,20,M,683,Semanal
+CLI0203,26,No especificado,1605,Semanal
+CLI0204,18,No especificado,545,Quincenal
+CLI0205,46,F,1455,Ocasional
+CLI0206,34,F,833,Ocasional
+CLI0207,43,F,1003,Mensual
+CLI0208,61,M,1321,Semanal
+CLI0209,54,F,1048,Ocasional
+CLI0210,25,No especificado,1452,Mensual
+CLI0211,57,M,2840,Quincenal
+CLI0212,46,F,2456,Quincenal
+CLI0213,57,M,1106,Ocasional
+CLI0214,31,No especificado,1032,Semanal
+CLI0215,23,M,522,Semanal
+CLI0216,22,M,401,Quincenal
+CLI0217,62,No especificado,2624,Semanal
+CLI0218,32,F,1179,Mensual
+CLI0219,47,M,1656,Ocasional
+CLI0220,58,No especificado,1510,Quincenal
+CLI0221,52,M,1310,Ocasional
+CLI0222,27,M,722,Semanal
+CLI0223,37,No especificado,1765,Ocasional
+CLI0224,46,M,2619,Mensual
+CLI0225,62,F,1815,Mensual
+CLI0226,49,F,1029,Mensual
+CLI0227,45,No especificado,2020,Mensual
+CLI0228,19,M,517,Ocasional
+CLI0229,54,No especificado,784,Ocasional
+CLI0230,61,F,864,Ocasional
+CLI0231,29,F,1662,Mensual
+CLI0232,35,M,1798,Quincenal
+CLI0233,49,M,2625,Quincenal
+CLI0234,39,F,814,Ocasional
+CLI0235,39,F,1614,Semanal
+CLI0236,43,No especificado,850,Quincenal
+CLI0237,38,F,1262,Semanal
+CLI0238,43,No especificado,704,Mensual
+CLI0239,52,F,2392,Semanal
+CLI0240,51,F,2741,Mensual
+CLI0241,21,M,536,Mensual
+CLI0242,36,F,1592,Semanal
+CLI0243,58,No especificado,1680,Mensual
+CLI0244,37,No especificado,628,Mensual
+CLI0245,23,M,458,Quincenal
+CLI0246,25,No especificado,915,Quincenal
+CLI0247,63,F,2784,Mensual
+CLI0248,44,F,2634,Semanal
+CLI0249,53,M,2271,Semanal
+CLI0250,56,No especificado,1259,Ocasional
+CLI0251,35,F,1296,Ocasional
+CLI0252,50,F,710,Semanal
+CLI0253,37,No especificado,1787,Ocasional
+CLI0254,49,M,2529,Mensual
+CLI0255,40,F,2960,Ocasional
+CLI0256,42,F,2018,Ocasional
+CLI0257,62,M,2268,Semanal
+CLI0258,44,M,2003,Mensual
+CLI0259,63,F,2281,Ocasional
+CLI0260,59,M,2728,Ocasional
+CLI0261,26,No especificado,1279,Ocasional
+CLI0262,46,M,2854,Ocasional
+CLI0263,18,No especificado,473,Quincenal
+CLI0264,59,M,1006,Quincenal
+CLI0265,34,F,1414,Mensual
+CLI0266,39,No especificado,1692,Quincenal
+CLI0267,38,No especificado,1599,Ocasional
+CLI0268,20,No especificado,435,Semanal
+CLI0269,61,F,1631,Mensual
+CLI0270,45,M,1111,Quincenal
+CLI0271,62,F,818,Diaria
+CLI0272,21,F,583,Quincenal
+CLI0273,27,M,1687,Quincenal
+CLI0274,61,M,1396,Semanal
+CLI0275,57,F,1686,Quincenal
+CLI0276,55,M,1651,Quincenal
+CLI0277,34,F,1122,Mensual
+CLI0278,47,F,2938,Semanal
+CLI0279,46,F,1925,Mensual
+CLI0280,45,No especificado,1724,Quincenal
+CLI0281,37,M,1387,Ocasional
+CLI0282,24,M,595,Mensual
+CLI0283,54,F,1909,Diaria
+CLI0284,60,F,1824,Diaria
+CLI0285,61,No especificado,900,Ocasional
+CLI0286,65,F,1872,Ocasional
+CLI0287,32,No especificado,1321,Semanal
+CLI0288,30,No especificado,1113,Mensual
+CLI0289,64,No especificado,1260,Mensual
+CLI0290,58,No especificado,861,Quincenal
+CLI0291,46,M,2194,Mensual
+CLI0292,23,F,567,Mensual
+CLI0293,29,M,870,Ocasional
+CLI0294,41,No especificado,2755,Ocasional
+CLI0295,28,F,1586,Ocasional
+CLI0296,36,No especificado,1293,Ocasional
+CLI0297,47,M,1276,Ocasional
+CLI0298,32,No especificado,1413,Ocasional
+CLI0299,53,F,1069,Ocasional
+CLI0300,18,F,674,Semanal
+CLI0301,41,No especificado,1773,Mensual
+CLI0302,58,F,1143,Mensual
+CLI0303,48,M,2999,Quincenal
+CLI0304,57,M,958,Mensual
+CLI0305,47,No especificado,1937,Mensual
+CLI0306,25,M,692,Ocasional
+CLI0307,37,F,837,Semanal
+CLI0308,52,M,2291,Quincenal
+CLI0309,60,No especificado,2912,Quincenal
+CLI0310,65,No especificado,1332,Ocasional
+CLI0311,59,M,2704,Mensual
+CLI0312,35,M,1358,Semanal
+CLI0313,46,M,2185,Semanal
+CLI0314,61,F,2930,Ocasional
+CLI0315,59,F,948,Quincenal
+CLI0316,30,M,1531,Semanal
+CLI0317,31,No especificado,643,Semanal
+CLI0318,39,M,857,Ocasional
+CLI0319,31,M,1735,Semanal
+CLI0320,31,M,1272,Ocasional
+CLI0321,56,M,1835,Ocasional
+CLI0322,27,M,1706,Semanal
+CLI0323,29,M,652,Semanal
+CLI0324,40,M,2026,Diaria
+CLI0325,34,M,859,Mensual
+CLI0326,51,M,960,Quincenal
+CLI0327,41,No especificado,1146,Quincenal
+CLI0328,32,No especificado,688,Mensual
+CLI0329,60,No especificado,1935,Quincenal
+CLI0330,19,M,645,Ocasional
+CLI0331,45,No especificado,1142,Quincenal
+CLI0332,46,M,1030,Quincenal
+CLI0333,27,M,858,Semanal
+CLI0334,58,No especificado,2946,Mensual
+CLI0335,42,No especificado,2873,Semanal
+CLI0336,50,No especificado,2462,Semanal
+CLI0337,62,M,2958,Mensual
+CLI0338,31,F,1524,Ocasional
+CLI0339,44,F,2557,Quincenal
+CLI0340,64,M,1980,Quincenal
+CLI0341,60,F,2233,Ocasional
+CLI0342,61,F,974,Semanal
+CLI0343,23,M,621,Semanal
+CLI0344,65,F,1232,Mensual
+CLI0345,55,No especificado,3000,Quincenal
+CLI0346,25,F,1324,Ocasional
+CLI0347,45,No especificado,910,Ocasional
+CLI0348,56,F,2140,Semanal
+CLI0349,50,M,1333,Mensual
+CLI0350,32,M,1317,Ocasional
+CLI0351,41,M,1841,Mensual
+CLI0352,45,No especificado,2980,Diaria
+CLI0353,60,No especificado,1795,Diaria
+CLI0354,35,No especificado,1232,Ocasional
+CLI0355,40,M,1443,Ocasional
+CLI0356,54,No especificado,2341,Semanal
+CLI0357,65,No especificado,825,Semanal
+CLI0358,51,M,2240,Quincenal
+CLI0359,39,M,1357,Quincenal
+CLI0360,38,No especificado,773,Ocasional
+CLI0361,27,M,701,Mensual
+CLI0362,35,F,1468,Quincenal
+CLI0363,46,F,1818,Semanal
+CLI0364,50,M,2113,Quincenal
+CLI0365,36,No especificado,1596,Mensual
+CLI0366,37,M,1051,Quincenal
+CLI0367,56,M,731,Semanal
+CLI0368,31,M,1123,Semanal
+CLI0369,25,M,1618,Mensual
+CLI0370,29,M,1378,Mensual
+CLI0371,32,No especificado,1744,Ocasional
+CLI0372,40,M,2326,Ocasional
+CLI0373,20,F,409,Quincenal
+CLI0374,22,F,694,Quincenal
+CLI0375,43,No especificado,2410,Semanal
+CLI0376,43,M,2030,Semanal
+CLI0377,57,F,2182,Semanal
+CLI0378,24,M,623,Mensual
+CLI0379,51,M,2321,Ocasional
+CLI0380,65,F,1607,Quincenal
+CLI0381,28,M,1645,Mensual
+CLI0382,51,No especificado,1494,Ocasional
+CLI0383,40,F,1304,Semanal
+CLI0384,27,F,1004,Semanal
+CLI0385,27,No especificado,754,Semanal
+CLI0386,58,F,2600,Ocasional
+CLI0387,55,F,2023,Ocasional
+CLI0388,58,F,1318,Quincenal
+CLI0389,48,F,1940,Ocasional
+CLI0390,55,M,2141,Mensual
+CLI0391,37,F,1525,Diaria
+CLI0392,41,F,1014,Mensual
+CLI0393,23,No especificado,659,Quincenal
+CLI0394,55,No especificado,868,Quincenal
+CLI0395,54,No especificado,1471,Quincenal
+CLI0396,48,No especificado,1317,Ocasional
+CLI0397,46,M,2106,Ocasional
+CLI0398,23,No especificado,488,Diaria
+CLI0399,63,F,2499,Mensual
+CLI0400,57,M,2190,Quincenal

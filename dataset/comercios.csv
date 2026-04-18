@@ -1,0 +1,4 @@
+id_comercio,nombre_comercio,rubro,ciudad,latitud,longitud
+COM001,SuperFresh,supermercado,Quito,-0.1807,-78.4678
+COM002,ModaMundo,ropa,Guayaquil,-0.2201,-78.5123
+COM003,Sabores & Co.,restaurante,Cuenca,-2.1894,-79.8891

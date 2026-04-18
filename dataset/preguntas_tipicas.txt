@@ -1,0 +1,35 @@
+EJEMPLOS DE PREGUNTAS DE ANÁLISIS — deuna! mi bolsillo
+=======================================================
+
+ANÁLISIS DESCRIPTIVO
+ 1. ¿Cuál es el ticket promedio en SuperFresh durante el último trimestre?
+ 2. ¿Cuántas transacciones se realizaron en total por cada comercio en los 12 meses?
+ 3. ¿Qué método de pago es más popular en cada comercio?
+ 4. ¿Cuál es la distribución de montos de transacción (mínimo, máximo, mediana) por rubro?
+ 5. ¿Cuáles son los 5 productos/servicios más vendidos en cada comercio?
+
+ANÁLISIS DE TENDENCIAS
+ 6. ¿Cómo ha evolucionado el gasto mensual en restaurantes a lo largo de los 12 meses?
+ 7. ¿Existe un patrón estacional en las ventas de ModaMundo (ropa)?
+ 8. ¿En qué día de la semana se concentran más transacciones por tipo de comercio?
+ 9. ¿Cómo ha variado el ticket promedio trimestral en SuperFresh?
+
+ANÁLISIS DE SEGMENTACIÓN
+10. ¿Cuáles son los segmentos RFM de clientes en cada comercio?
+11. ¿Existen diferencias de gasto entre grupos de edad (18-25, 26-40, 41+)?
+12. ¿Los clientes con frecuencia de visita "Semanal" generan más ingresos que los "Mensuales"?
+13. ¿Qué segmento de clientes tiene mayor probabilidad de churn?
+
+ANÁLISIS DE COMPORTAMIENTO
+14. ¿A qué hora del día se realizan más transacciones en el restaurante?
+15. ¿Los clientes con mayores ingresos estimados prefieren tarjeta de crédito o débito?
+16. ¿Qué categoría de productos concentra mayor monto de ventas en SuperFresh?
+
+ANÁLISIS DE VALOR
+17. ¿Cuál es el LTV estimado de los clientes que visitan un comercio semanalmente vs. mensualmente?
+18. ¿Cuáles son los 20% de clientes que generan el 80% de los ingresos (análisis Pareto)?
+19. ¿Cuál es la tasa de retención mensual por comercio?
+
+ANÁLISIS PREDICTIVO
+20. ¿Se puede predecir qué clientes dejarán de comprar (churn) en los próximos 60 días
+    usando variables como recencia, frecuencia y monto histórico?
