@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'http://localhost:5000/api';
 let COMERCIO_ID = null;
 let saldoVisible = true;
 let saldoActual = 0;
@@ -277,7 +277,7 @@ async function sendChatToAPI(inputField, chatArea) {
     } catch (error) {
         const loader = document.getElementById(loaderId);
         if (loader) loader.remove();
-        appendMessage("No se pudo conectar a la API en localhost:8000.", 'bot', chatArea);
+        appendMessage("No se pudo conectar a la API en localhost:5000.", 'bot', chatArea);
     }
 }
 

@@ -517,7 +517,7 @@
 </div>
 
 <script>
-    const API_BASE = 'http://localhost:8000/api';
+    const API_BASE = 'http://localhost:5000/api';
     let COMERCIO_ID = null;
     let saldoVisible = true;
     let saldoActual = 0;
@@ -767,7 +767,7 @@
             }
         } catch (error) {
             document.getElementById(loaderId).remove();
-            appendMessage("No se pudo conectar a la API en localhost:8000.", 'bot', chatArea);
+            appendMessage("No se pudo conectar a la API en localhost:5000.", 'bot', chatArea);
         }
     }
 
