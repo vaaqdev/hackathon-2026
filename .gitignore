@@ -1,0 +1,110 @@
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Packages
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+*.sqlite3
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Dependency directories
+node_modules/
+bower_components/
+vendor/
+
+# Build directories
+build/
+dist/
+out/
+target/
+*.egg-info/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Coverage reports
+coverage/
+.nyc_output/
+*.cover
+*.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+.cache/
+
+# Python
+*.egg
+*.eggs
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Java
+*.war
+*.ear
+*.class
+
+# macOS
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
