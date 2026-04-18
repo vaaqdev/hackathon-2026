@@ -12,7 +12,7 @@ sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 import json
 import os
-import re
+import numpy as np
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -31,13 +31,13 @@ load_dotenv()
 # Configuración de Groq API
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL = "llama-3.1-8b-instant"  # Ultrarrápido y preciso con datos estructurados
+GROQ_MODEL = "llama-3.1-8b-instant" 
 
 # Configuración
 app = FastAPI(
     title="Mi Contador de Bolsillo - API",
-    description="Asistente conversacional para micro-comerciantes ecuatorianos con Groq AI",
-    version="2.0.0"
+    description="API híbrida: Endpoints rápidos para datos duros y chatbot IA para análisis avanzado.",
+    version="3.1.0"
 )
 
 # CORS para desarrollo local
@@ -64,19 +64,18 @@ df_comercios = pd.read_csv(COMERCIOS_CSV)
 
 # Convertir fechas
 df_transacciones['fecha_transaccion'] = pd.to_datetime(df_transacciones['fecha_transaccion'])
-df_transacciones['hora_transaccion'] = pd.to_datetime(df_transacciones['hora_transaccion'], format='%H:%M:%S').dt.time
+df_transacciones['hora_transaccion_dt'] = pd.to_datetime(df_transacciones['hora_transaccion'], format='%H:%M:%S', errors='coerce')
 df_transacciones['mes'] = df_transacciones['fecha_transaccion'].dt.month
-df_transacciones['trimestre'] = df_transacciones['fecha_transaccion'].dt.quarter
 df_transacciones['dia_semana'] = df_transacciones['fecha_transaccion'].dt.day_name()
-df_transacciones['hora'] = pd.to_datetime(df_transacciones['hora_transaccion'], format='%H:%M:%S').dt.hour
+df_transacciones['hora'] = df_transacciones['hora_transaccion_dt'].dt.hour
 
 # Merge con comercios y clientes
 df_completo = df_transacciones.merge(
-    df_comercios[['id_comercio', 'nombre_comercio', 'rubro', 'ciudad']],
+    df_comercios[['id_comercio', 'nombre_comercio', 'rubro', 'ciudad', 'latitud', 'longitud']],
     on='id_comercio',
     how='left'
 ).merge(
-    df_clientes[['id_cliente', 'edad', 'genero', 'frecuencia_visita']],
+    df_clientes[['id_cliente', 'edad', 'genero', 'ingresos_estimados', 'frecuencia_visita']],
     on='id_cliente',
     how='left'
 )
@@ -90,12 +89,10 @@ class ChatRequest(BaseModel):
     mensaje: str
     id_comercio: Optional[str] = None
 
-
 class ChatResponse(BaseModel):
     respuesta: str
     tipo: str
     datos: Optional[Dict] = None
-
 
 class AlertaProactiva(BaseModel):
     titulo: str
@@ -106,17 +103,12 @@ class AlertaProactiva(BaseModel):
 # ==================== MOTOR DE ANÁLISIS CON GROQ ====================
 
 class AnalizadorNegocio:
-    """Motor para analizar preguntas de negocio usando Groq AI."""
-
     def __init__(self, df: pd.DataFrame, df_clientes: pd.DataFrame, df_comercios: pd.DataFrame):
         self.df = df
         self.df_clientes = df_clientes
         self.df_comercios = df_comercios
-        self.comercios = df['nombre_comercio'].unique()
-        self.rubros = df['rubro'].unique()
 
     def get_comercio_data(self, id_comercio: str) -> Dict:
-        """Obtiene los datos de un comercio específico con cálculos matemáticos correctos."""
         df_comercio = self.df[self.df['id_comercio'] == id_comercio].copy()
 
         if len(df_comercio) == 0:
@@ -124,63 +116,33 @@ class AnalizadorNegocio:
 
         comercio_info = self.df_comercios[self.df_comercios['id_comercio'] == id_comercio].iloc[0]
 
-        # Cálculos matemáticos correctos
         total_ventas = df_comercio['monto_transaccion'].sum()
         total_transacciones = len(df_comercio)
         ticket_promedio = df_comercio['monto_transaccion'].mean()
-        ticket_mediana = df_comercio['monto_transaccion'].median()
-        ticket_min = df_comercio['monto_transaccion'].min()
-        ticket_max = df_comercio['monto_transaccion'].max()
         clientes_unicos = df_comercio['id_cliente'].nunique()
 
-        # Métodos de pago
         metodos_pago = df_comercio['metodo_pago'].value_counts().to_dict()
-        metodos_pct = {
-            metodo: round((cantidad / total_transacciones) * 100, 2)
-            for metodo, cantidad in metodos_pago.items()
-        }
+        metodos_pct = {m: round((c / total_transacciones) * 100, 2) for m, c in metodos_pago.items()}
 
-        # Top productos por monto y cantidad
         productos_stats = df_comercio.groupby('descripcion_producto_o_servicio').agg({
-            'monto_transaccion': ['sum', 'count', 'mean']
-        }).reset_index()
-        productos_stats.columns = ['producto', 'total_monto', 'cantidad_ventas', 'promedio_monto']
-        productos_stats = productos_stats.sort_values('total_monto', ascending=False)
-        top_productos = productos_stats.head(5).to_dict('records')
-
-        # Ventas por mes
-        ventas_mensuales = df_comercio.groupby('mes').agg({
             'monto_transaccion': ['sum', 'count']
         }).reset_index()
+        productos_stats.columns = ['producto', 'total_monto', 'cantidad_ventas']
+        top_productos = productos_stats.sort_values('total_monto', ascending=False).head(5).to_dict('records')
+
+        ventas_mensuales = df_comercio.groupby('mes').agg({'monto_transaccion': ['sum', 'count']}).reset_index()
         ventas_mensuales.columns = ['mes', 'ventas_total', 'transacciones']
         ventas_mensuales_dict = ventas_mensuales.set_index('mes').to_dict('index')
 
-        # Días de la semana
-        dias_ventas = df_comercio['dia_semana'].value_counts().to_dict()
-
-        # Horas pico
-        horas_pico = df_comercio['hora'].value_counts().head(5).to_dict()
-
-        # Información de clientes
         clientes_df = df_comercio.merge(
-            self.df_clientes[['id_cliente', 'edad', 'genero', 'frecuencia_visita']],
+            self.df_clientes[['id_cliente', 'edad', 'genero', 'ingresos_estimados', 'frecuencia_visita']],
             on='id_cliente',
             how='left'
         )
 
-        edad_promedio = clientes_df['edad'].mean() if 'edad' in clientes_df.columns and not clientes_df['edad'].isna().all() else 0
+        edad_promedio = clientes_df['edad'].mean() if 'edad' in clientes_df.columns else 0
+        ingreso_promedio = clientes_df['ingresos_estimados'].mean() if 'ingresos_estimados' in clientes_df.columns else 0
         genero_dist = clientes_df['genero'].value_counts().to_dict() if 'genero' in clientes_df.columns else {}
-        frecuencia_dist = clientes_df['frecuencia_visita'].value_counts().to_dict() if 'frecuencia_visita' in clientes_df.columns else {}
-
-        # Clientes top por gasto
-        clientes_gasto = df_comercio.groupby('id_cliente')['monto_transaccion'].sum().sort_values(ascending=False).head(5)
-
-        # Comparación mes a mes
-        if len(ventas_mensuales) >= 2:
-            ventas_list = ventas_mensuales['ventas_total'].tolist()
-            cambio_mes = ((ventas_list[-1] - ventas_list[-2]) / ventas_list[-2]) * 100 if ventas_list[-2] != 0 else 0
-        else:
-            cambio_mes = 0
 
         return {
             "comercio": {
@@ -190,317 +152,129 @@ class AnalizadorNegocio:
                 "ciudad": comercio_info.get('ciudad', 'N/A')
             },
             "metricas": {
-                "total_ventas": round(total_ventas, 2),
+                "saldo_actual": round(total_ventas, 2),
                 "total_transacciones": int(total_transacciones),
                 "ticket_promedio": round(ticket_promedio, 2),
-                "ticket_mediana": round(ticket_mediana, 2),
-                "ticket_minimo": round(ticket_min, 2),
-                "ticket_maximo": round(ticket_max, 2),
                 "clientes_unicos": int(clientes_unicos)
             },
-            "metodos_pago": {
-                "conteo": metodos_pago,
-                "porcentajes": metodos_pct
-            },
+            "metodos_pago": {"conteo": metodos_pago, "porcentajes": metodos_pct},
             "productos_top": top_productos,
             "ventas_mensuales": ventas_mensuales_dict,
-            "dias_ventas": dias_ventas,
-            "horas_pico": horas_pico,
             "clientes": {
                 "edad_promedio": round(edad_promedio, 1),
-                "distribucion_genero": genero_dist,
-                "distribucion_frecuencia": frecuencia_dist,
-                "top_clientes_gasto": clientes_gasto.to_dict()
-            },
-            "tendencia": {
-                "cambio_mes_anterior": round(cambio_mes, 2)
+                "ingreso_promedio_estimado": round(ingreso_promedio, 2),
+                "distribucion_genero": genero_dist
             }
         }
 
     def generar_contexto_ia(self, datos: Dict) -> str:
-        """Genera un contexto optimizado para la IA."""
         m = datos['metricas']
         c = datos['comercio']
+        cl = datos['clientes']
 
-        contexto = f"""=== DATOS DEL COMERCIO ===
-Nombre: {c['nombre']}
+        contexto = f"""=== ESTADO FINANCIERO Y DATOS DEL NEGOCIO ===
+Nombre del Comercio: {c['nombre']}
 Rubro: {c['rubro']}
-Ciudad: {c['ciudad']}
 
-=== MÉTRICAS CLAVE (CÁLCULOS REALES) ===
-• Total de ventas: ${m['total_ventas']:,.2f}
-• Número de transacciones: {m['total_transacciones']:,}
-• Ticket promedio: ${m['ticket_promedio']:.2f}
-• Ticket mediana: ${m['ticket_mediana']:.2f}
-• Clientes únicos: {m['clientes_unicos']:,}
-• Tendencia vs mes anterior: {datos['tendencia']['cambio_mes_anterior']:+.1f}%
+=== SALDO Y MÉTRICAS CLAVE ===
+• SALDO ACTUAL GENERADO (Total de ventas acumuladas): ${m['saldo_actual']:,.2f}
+• Total de transacciones realizadas: {m['total_transacciones']:,}
+• Ticket promedio por compra: ${m['ticket_promedio']:.2f}
 
-=== MÉTODOS DE PAGO ===
-"""
-        for metodo, pct in datos['metodos_pago']['porcentajes'].items():
-            contexto += f"• {metodo}: {pct}% ({datos['metodos_pago']['conteo'][metodo]} trans)\n"
-
-        contexto += "\n=== TOP 5 PRODUCTOS POR VENTAS ===\n"
+=== TOP PRODUCTOS ===\n"""
         for i, prod in enumerate(datos['productos_top'], 1):
-            contexto += f"{i}. {prod['producto']}: ${prod['total_monto']:,.2f} ({prod['cantidad_ventas']} ventas, promedio ${prod['promedio_monto']:.2f})\n"
-
-        contexto += "\n=== VENTAS POR MES ===\n"
-        for mes, data in sorted(datos['ventas_mensuales'].items()):
-            contexto += f"• Mes {mes}: ${data['ventas_total']:,.2f} ({data['transacciones']} transacciones)\n"
-
-        contexto += f"\n=== PERFIL DE CLIENTES ===\n• Edad promedio: {datos['clientes']['edad_promedio']} años\n"
-        if datos['clientes']['distribucion_genero']:
-            contexto += "• Género: " + ", ".join([f"{k}: {v}" for k, v in datos['clientes']['distribucion_genero'].items()]) + "\n"
-
-        contexto += (
-            "\n=== INSTRUCCIONES ESTRICTAS PARA LA IA ===\n"
-            "- Responde ÚNICAMENTE con datos presentes en este contexto.\n"
-            "- Si el dato no está aquí, di 'No tengo ese dato disponible'.\n"
-            "- NO inventes cifras, porcentajes ni tendencias.\n"
-            "- Sé conciso: máximo 3-4 oraciones.\n"
-            "- Usa los valores numéricos exactos proporcionados arriba."
-        )
+            contexto += f"{i}. {prod['producto']}: ${prod['total_monto']:,.2f} ({prod['cantidad_ventas']} ventas)\n"
 
         return contexto
 
     def consultar_groq(self, mensaje: str, contexto: str) -> str:
-        """Consulta a Groq API."""
-        if not GROQ_API_KEY:
-            return "Error: No se ha configurado GROQ_API_KEY en el archivo .env"
-
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {GROQ_API_KEY}"
-        }
-
+        if not GROQ_API_KEY: return "Error: GROQ_API_KEY no configurada."
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {GROQ_API_KEY}"}
+        instrucciones = "Eres un asesor financiero analítico. Da consejos e insights basados en los datos. No inventes números."
+        
         data = {
             "model": GROQ_MODEL,
             "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "Eres un asistente de análisis financiero para micro-comerciantes ecuatorianos. "
-                        "Tu única fuente de verdad son los datos que el usuario te proporciona en cada mensaje. "
-                        "NUNCA inventes números, porcentajes, nombres de productos ni tendencias. "
-                        "Si no encuentras el dato en el contexto, responde exactamente: 'No tengo ese dato disponible.' "
-                        "Responde siempre en español, de forma clara y en máximo 4 oraciones."
-                    )
-                },
-                {
-                    "role": "user",
-                    "content": f"{contexto}\n\nPREGUNTA DEL COMERCIANTE: {mensaje}"
-                }
+                {"role": "system", "content": instrucciones},
+                {"role": "user", "content": f"DATOS DEL NEGOCIO:\n{contexto}\n\nPREGUNTA: {mensaje}"}
             ],
-            "max_tokens": 512,
-            "temperature": 0.2,   # Baja temperatura = menos alucinaciones
-            "top_p": 0.9,
-            "stream": False
+            "max_tokens": 1024, "temperature": 0.3
         }
 
         try:
-            response = requests.post(GROQ_API_URL, headers=headers, json=data, timeout=30)
-            response.raise_for_status()
-            result = response.json()
-            return result["choices"][0]["message"]["content"]
-        except requests.exceptions.Timeout:
-            return "Error: La solicitud tardó demasiado. Intenta de nuevo."
-        except requests.exceptions.RequestException as e:
-            return f"Error de conexión con Groq: {str(e)}"
-        except (KeyError, IndexError) as e:
-            return f"Error procesando respuesta: {str(e)}"
+            r = requests.post(GROQ_API_URL, headers=headers, json=data, timeout=30)
+            r.raise_for_status()
+            return r.json()["choices"][0]["message"]["content"]
+        except Exception as e:
+            return f"Error con Groq: {str(e)}"
 
     def responder(self, mensaje: str, id_comercio: Optional[str] = None) -> ChatResponse:
-        """Genera una respuesta usando Groq AI."""
-        if not id_comercio:
-            return ChatResponse(
-                respuesta="Por favor selecciona un comercio primero. Puedes ver los disponibles en /api/comercios",
-                tipo="error",
-                datos={}
-            )
-
+        if not id_comercio: return ChatResponse(respuesta="Selecciona un comercio.", tipo="error")
         datos = self.get_comercio_data(id_comercio)
-
-        if not datos:
-            return ChatResponse(
-                respuesta=f"No se encontró el comercio '{id_comercio}'. Verifica el ID.",
-                tipo="error",
-                datos={"comercios_disponibles": self.df_comercios['id_comercio'].tolist()}
-            )
-
-        contexto = self.generar_contexto_ia(datos)
-        respuesta = self.consultar_groq(mensaje, contexto)
-
-        return ChatResponse(
-            respuesta=respuesta,
-            tipo="ia_response",
-            datos={"comercio": datos['comercio']}
-        )
-
-    def generar_alerta_proactiva(self, id_comercio: Optional[str] = None) -> AlertaProactiva:
-        """Genera una alerta proactiva basada en tendencias."""
-        if id_comercio:
-            df_temp = self.df[self.df['id_comercio'] == id_comercio]
-            nombre = self.df_comercios[self.df_comercios['id_comercio'] == id_comercio]['nombre_comercio'].iloc[0] if len(self.df_comercios[self.df_comercios['id_comercio'] == id_comercio]) > 0 else "Tu negocio"
-        else:
-            df_temp = self.df
-            nombre = "Tu negocio"
-
-        ventas_mensuales = df_temp.groupby('mes')['monto_transaccion'].sum()
-
-        if len(ventas_mensuales) >= 2:
-            mes_actual = ventas_mensuales.iloc[-1]
-            mes_anterior = ventas_mensuales.iloc[-2]
-            cambio = ((mes_actual - mes_anterior) / mes_anterior) * 100
-
-            if cambio > 10:
-                return AlertaProactiva(
-                    titulo=f"¡{nombre} va en aumento! 📈",
-                    descripcion=f"Tus ventas subieron un {cambio:.1f}% respecto al mes pasado.",
-                    tipo="positiva"
-                )
-            elif cambio < -10:
-                return AlertaProactiva(
-                    titulo=f"Alerta en {nombre} 📉",
-                    descripcion=f"Tus ventas bajaron un {abs(cambio):.1f}% respecto al mes pasado.",
-                    tipo="negativa"
-                )
-
-        dia_pico = df_temp['dia_semana'].value_counts().index[0] if len(df_temp) > 0 else "este día"
-        return AlertaProactiva(
-            titulo=f"Consejo para {nombre} 💡",
-            descripcion=f"Los {dia_pico}s son tus días con más ventas. Considera promociones.",
-            tipo="consejo"
-        )
+        if not datos: return ChatResponse(respuesta="Comercio no encontrado.", tipo="error")
+        return ChatResponse(respuesta=self.consultar_groq(mensaje, self.generar_contexto_ia(datos)), tipo="ia_response")
 
 
-# Inicializar analizador
 analizador = AnalizadorNegocio(df_completo, df_clientes, df_comercios)
 
-
-# ==================== ENDPOINTS ====================
-
-@app.get("/")
-async def root():
-    """Sirve el index.html"""
-    return FileResponse("index.html")
+def clean_df_for_json(df: pd.DataFrame) -> List[Dict]:
+    return df.replace({np.nan: None}).to_dict('records')
 
 
-@app.get("/api/health")
-async def health():
-    """Endpoint de salud."""
+# ==================== NUEVO ENDPOINT RAPIDO ====================
+
+@app.get("/api/comercio/{id_comercio}/saldo")
+async def get_saldo_comercio(id_comercio: str):
+    """
+    Devuelve de forma instantánea el saldo actual de un comercio 
+    sin consultar a la Inteligencia Artificial.
+    """
+    datos = analizador.get_comercio_data(id_comercio)
+    if not datos:
+        raise HTTPException(status_code=404, detail=f"Comercio '{id_comercio}' no encontrado")
+    
     return {
-        "status": "ok",
-        "timestamp": datetime.now().isoformat(),
-        "ai_provider": "groq",
-        "model": GROQ_MODEL,
-        "datos": {
-            "transacciones": len(df_transacciones),
-            "clientes": len(df_clientes),
-            "comercios": len(df_comercios)
-        }
+        "id_comercio": id_comercio,
+        "nombre_comercio": datos['comercio']['nombre'],
+        "saldo_actual": datos['metricas']['saldo_actual'],
+        "moneda": "USD"
     }
 
+
+# ==================== RESTO DE ENDPOINTS ====================
+
+@app.get("/api/datos/clientes")
+async def get_todos_clientes(): return clean_df_for_json(df_clientes)
+
+@app.get("/api/datos/comercios")
+async def get_todos_comercios(): return clean_df_for_json(df_comercios)
+
+@app.get("/api/datos/transacciones")
+async def get_todas_transacciones(): return clean_df_for_json(df_transacciones.copy().astype(str))
+
+@app.get("/api/datos/completos")
+async def get_todo_fusionado(): return {"total_filas": len(df_completo), "datos": clean_df_for_json(df_completo.copy().astype(str))}
+
+@app.get("/")
+async def root(): return FileResponse("index.html")
 
 @app.get("/api/comercios")
 async def get_comercios():
-    """Devuelve todos los comercios disponibles con sus métricas."""
-    comercios_list = []
-
-    for _, comercio in df_comercios.iterrows():
-        datos = analizador.get_comercio_data(comercio['id_comercio'])
-        if datos:
-            comercios_list.append({
-                "id": comercio['id_comercio'],
-                "nombre": comercio['nombre_comercio'],
-                "rubro": comercio['rubro'],
-                "ciudad": comercio.get('ciudad', 'N/A'),
-                "metricas": datos['metricas']
-            })
-
-    return {
-        "comercios": comercios_list,
-        "total": len(comercios_list)
-    }
-
-
-@app.get("/api/comercio/{id_comercio}")
-async def get_comercio(id_comercio: str):
-    """Devuelve datos completos de un comercio específico."""
-    datos = analizador.get_comercio_data(id_comercio)
-
-    if not datos:
-        raise HTTPException(status_code=404, detail=f"Comercio '{id_comercio}' no encontrado")
-
-    return datos
-
+    comercios_list = [analizador.get_comercio_data(c['id_comercio']) for _, c in df_comercios.iterrows() if analizador.get_comercio_data(c['id_comercio'])]
+    return {"comercios": comercios_list, "total": len(comercios_list)}
 
 @app.post("/api/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest):
-    """
-    Endpoint principal para el chatbot con Groq AI.
-    Requiere un mensaje y opcionalmente un id_comercio.
+async def chat(request: ChatRequest): return analizador.responder(request.mensaje, request.id_comercio)
 
-    Ejemplo de body:
-    {
-        "mensaje": "¿Cuál fue mi producto más vendido?",
-        "id_comercio": "COM001"
-    }
-    """
-    try:
-        respuesta = analizador.responder(request.mensaje, request.id_comercio)
-        return respuesta
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error procesando la consulta: {str(e)}")
-
-
-@app.get("/api/alerta-proactiva")
-async def alerta_proactiva(id_comercio: Optional[str] = Query(None)):
-    """Genera una alerta proactiva basada en tendencias del negocio."""
-    return analizador.generar_alerta_proactiva(id_comercio)
-
-
-@app.get("/api/transacciones")
-async def get_transacciones(
-    limit: int = Query(100, ge=1, le=1000),
-    id_comercio: Optional[str] = Query(None)
-):
-    """Devuelve transacciones, opcionalmente filtradas por comercio."""
-    df_result = df_transacciones.copy()
-
-    if id_comercio:
-        df_result = df_result[df_result['id_comercio'] == id_comercio]
-
-    # Merge con info de comercios
-    df_result = df_result.merge(
-        df_comercios[['id_comercio', 'nombre_comercio', 'rubro']],
-        on='id_comercio',
-        how='left'
-    )
-
-    return {
-        "transacciones": df_result.head(limit).to_dict('records'),
-        "total": len(df_result)
-    }
-
-
-# ==================== INICIAR SERVIDOR ====================
 
 if __name__ == "__main__":
     import uvicorn
-    print("\n" + "="*60)
-    print("🚀 Mi Contador de Bolsillo - Servidor con Groq AI")
-    print("="*60)
-    print(f"\n🤖 Modelo: {GROQ_MODEL}")
-    print(f"🔑 API Key: {'✅ Configurada' if GROQ_API_KEY else '❌ No configurada — revisa tu .env'}")
-    print("\n📍 URLs disponibles:")
-    print("   • Frontend:    http://localhost:8000")
-    print("   • API Docs:    http://localhost:8000/docs")
-    print("   • Health:      http://localhost:8000/api/health")
-    print("   • Comercios:   http://localhost:8000/api/comercios")
-    print("\n💡 Ejemplos de uso:")
-    print("   • Listar comercios: GET  /api/comercios")
-    print("   • Datos de comercio: GET  /api/comercio/COM001")
-    print("   • Chat: POST /api/chat  { mensaje, id_comercio }")
-    print("\n" + "="*60 + "\n")
-
+    print("\n" + "="*65)
+    print("🚀 Mi Contador de Bolsillo - Servidor Optimizado")
+    print("="*65)
+    print("\n📍 ENDPOINTS PRINCIPALES:")
+    print("   • 💰 Saldo Rápido (GET):   http://localhost:8000/api/comercio/COM001/saldo")
+    print("   • 🤖 Chat IA (POST):       http://localhost:8000/api/chat")
+    print("   • 🏢 Comercios (GET):      http://localhost:8000/api/comercios")
+    print("\n" + "="*65 + "\n")
     uvicorn.run(app, host="0.0.0.0", port=8000)
