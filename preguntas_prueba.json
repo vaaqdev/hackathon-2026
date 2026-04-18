@@ -1,0 +1,113 @@
+{
+  "entregable_hackathon": {
+    "nombre_proyecto": "Mi Contador de Bolsillo",
+    "objetivo": "Validar precisión, latencia y tono coloquial del agente conversacional",
+    "casos_prueba": [
+      {
+        "id": 1,
+        "categoria": "Ventas Totales",
+        "pregunta": "¿Cuánto dinero he hecho en total?",
+        "respuesta_esperada": "Tus ingresos totales registrados son $[Monto].",
+        "criterio_exito": "Debe mostrar el total exacto con formato de moneda, sin usar palabras como 'Revenue' o 'Ingresos brutos'."
+      },
+      {
+        "id": 2,
+        "categoria": "Número de Transacciones",
+        "pregunta": "¿Cuántas ventas he logrado hacer?",
+        "respuesta_esperada": "Has realizado un total de [Número] ventas.",
+        "criterio_exito": "Debe dar el número entero de ventas sin decimales ni jerga."
+      },
+      {
+        "id": 3,
+        "categoria": "Ticket Promedio",
+        "pregunta": "¿Cuánto gasta más o menos cada persona que viene?",
+        "respuesta_esperada": "En promedio, cada cliente gasta $[Monto] en tu negocio.",
+        "criterio_exito": "PROHIBIDO usar 'Ticket promedio' o 'AOV'. Debe explicarlo como 'gasto por cliente'."
+      },
+      {
+        "id": 4,
+        "categoria": "Top Productos",
+        "pregunta": "¿Cuáles son las cosas que más estoy vendiendo?",
+        "respuesta_esperada": "Tus 3 productos más vendidos son: 1. [Prod A], 2. [Prod B], 3. [Prod C].",
+        "criterio_exito": "Debe listar solo el top 3 extraído del contexto."
+      },
+      {
+        "id": 5,
+        "categoria": "Horas Pico",
+        "pregunta": "¿A qué hora me cae más clientela?",
+        "respuesta_esperada": "La hora en la que recibes más clientes es a las [Hora]:00.",
+        "criterio_exito": "Identificar la hora modal del dataset."
+      },
+      {
+        "id": 6,
+        "categoria": "Mejores Días",
+        "pregunta": "¿Qué día de la semana me va mejor?",
+        "respuesta_esperada": "El día que más ventas tienes es el [Día de la semana].",
+        "criterio_exito": "El día debe estar traducido al español."
+      },
+      {
+        "id": 7,
+        "categoria": "Métodos de Pago",
+        "pregunta": "¿La gente me está pagando más en efectivo o con la app?",
+        "respuesta_esperada": "Tus clientes te pagan así: [X] veces con Efectivo, [Y] veces con Transferencia/App...",
+        "criterio_exito": "Debe listar el conteo real sin inventar métodos de pago que no existan."
+      },
+      {
+        "id": 8,
+        "categoria": "Tendencia de Crecimiento",
+        "pregunta": "¿Me fue mejor este mes o estoy bajando?",
+        "respuesta_esperada": "Tus ventas [subieron/bajaron] un [Porcentaje]% comparado con el mes pasado.",
+        "criterio_exito": "Cálculo matemático correcto. Debe incluir el porcentaje exacto y la dirección (subida o bajada)."
+      },
+      {
+        "id": 9,
+        "categoria": "Perfil del Cliente (Edad)",
+        "pregunta": "¿Qué edad tienen los que me compran?",
+        "respuesta_esperada": "En promedio, tus clientes tienen [Edad] años.",
+        "criterio_exito": "Número redondeado, sin decimales extraños."
+      },
+      {
+        "id": 10,
+        "categoria": "Retención / Clientes Únicos",
+        "pregunta": "¿A cuántas personas distintas les he vendido?",
+        "respuesta_esperada": "Has atendido a [Número] clientes únicos en total.",
+        "criterio_exito": "Diferenciar entre número de ventas totales y clientes únicos (nunique)."
+      },
+      {
+        "id": 11,
+        "categoria": "Multinivel (Día + Producto)",
+        "pregunta": "¿Cuál es mi día más movido y qué es lo que más sale?",
+        "respuesta_esperada": "Tu día más movido es el [Día] y tu producto estrella es [Producto].",
+        "criterio_exito": "Capacidad del modelo de unir dos puntos de datos del contexto en una sola oración fluida."
+      },
+      {
+        "id": 12,
+        "categoria": "Prevención de Alucinación (Dato externo)",
+        "pregunta": "¿Cuántos de mis clientes tienen tarjeta de crédito del Banco Pichincha?",
+        "respuesta_esperada": "Uy, ese dato todavía no lo tengo registrado, pero sigo aprendiendo.",
+        "criterio_exito": "EVALUACIÓN CRÍTICA. El modelo DEBE negarse a responder usando la frase exacta del system prompt."
+      },
+      {
+        "id": 13,
+        "categoria": "Prevención de Alucinación (Predicción futura)",
+        "pregunta": "¿Cuánto crees que voy a vender en diciembre del próximo año?",
+        "respuesta_esperada": "Uy, ese dato todavía no lo tengo registrado, pero sigo aprendiendo.",
+        "criterio_exito": "El modelo no debe predecir el futuro ni inventar proyecciones que no estén pre-calculadas en Pandas."
+      },
+      {
+        "id": 14,
+        "categoria": "Lenguaje Coloquial Ecuatoriano 1",
+        "pregunta": "¿Qué tal me fue con las lucas este último mes?",
+        "respuesta_esperada": "Tus ingresos totales registrados son $[Monto] y [subieron/bajaron] un [Porcentaje]% respecto al mes anterior.",
+        "criterio_exito": "Debe entender 'lucas' como dinero/ventas y mapearlo al contexto de ingresos."
+      },
+      {
+        "id": 15,
+        "categoria": "Lenguaje Coloquial Ecuatoriano 2",
+        "pregunta": "¿Quiénes son mis caseros más fieles?",
+        "respuesta_esperada": "Tus clientes suelen visitarte de forma [Frecuencia] y has atendido a [Número] personas distintas.",
+        "criterio_exito": "Debe relacionar 'caseros fieles' con la métrica de frecuencia de visita o clientes recurrentes."
+      }
+    ]
+  }
+}
