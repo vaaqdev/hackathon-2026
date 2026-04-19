@@ -1,4 +1,4 @@
-comercio_id,nombre,categoria,ciudad,zona,apertura,cierre
+﻿comercio_id,nombre,categoria,ciudad,zona,apertura,cierre
 COM001,Tienda La Esquina de Doña Rosa,Tienda,Quito,Norte,07:00,20:00
 COM002,Botica Don Jacinto,Farmacia,Quito,Centro,08:00,21:00
 COM003,Cevichería El Rincón Costeño,Restaurante,Guayaquil,Sur,10:00,16:00

@@ -1,52 +1,139 @@
-GLOSARIO DE TÉRMINOS — DASHBOARD DEUNA! (Banco Pichincha)
-Período de análisis: 19 de abril de 2025 al 19 de abril de 2026
-==================================================================
+============================================================
+  GLOSARIO DE TÉRMINOS — DASHBOARD DEUNA!
+  Banco Pichincha | Período de análisis: 19-abr-2025 al 19-abr-2026
+============================================================
 
-1. TRANSACCIÓN EN DEUNA!
-Una transacción en Deuna! es el registro de un intercambio económico digital entre un cliente y un microempresario, realizado exclusivamente a través de la billetera móvil Deuna! de Banco Pichincha. Cada transacción tiene un identificador único (TXN-), un monto en dólares (USD), un método de pago digital, un estado y un canal de originación.
+PERÍODO DE ANÁLISIS
+-------------------
+Este dashboard cubre exactamente un año de operaciones, desde el 19 de abril
+de 2025 hasta el 19 de abril de 2026, para los tres micronegocios afiliados
+a la plataforma Deuna! en Ecuador.
 
-2. PAGO POR QR DEUNA (Método: "QR Deuna")
-El microempresario genera o imprime un código QR estático o dinámico vinculado a su cuenta Deuna!. El cliente, desde su aplicación Deuna!, escanea el código para enviar el monto correspondiente. Este método es mayoritariamente presencial y es el más rápido para puntos de venta físicos. No requiere que el comerciante tenga un POS ni datáfono.
 
-3. PAGO A CONTACTO — CELULAR (Método: "Pago a Contacto")
-El cliente envía el pago directamente al número de celular registrado del comerciante en Deuna!. No se necesita QR ni enlace; basta con buscar el número en la app. Es muy utilizado en entornos mixtos (presencial y digital). Ideal cuando el comerciante no tiene impreso su QR.
+TRANSACCIÓN EN DEUNA!
+----------------------
+Una transacción en Deuna! es el registro de un intercambio económico entre
+un cliente y un micronegocio, procesado íntegramente a través de la
+billetera móvil Deuna! de Banco Pichincha. Cada transacción contiene:
+identificador único, fecha y hora, comercio, monto en dólares (USD),
+método de pago digital utilizado, canal de cobro y estado final.
+Importante: este dataset excluye por diseño métodos de pago tradicionales
+(efectivo, tarjeta de crédito/débito, transferencia bancaria), ya que el
+análisis se enfoca exclusivamente en la adopción y uso de Deuna!.
 
-4. LINK DE PAGO DEUNA (Método: "Link de Pago Deuna")
-El microempresario genera un enlace de cobro desde la app Deuna! y lo comparte por WhatsApp, Instagram, Facebook u otros canales digitales. El cliente abre el link, ingresa a una pasarela segura y confirma el pago. Domina en transacciones de fin de semana y en ventas a distancia.
 
-5. CANAL "PRESENCIAL"
-La transacción ocurre en el local físico del comerciante. El cliente está presente y escanea el QR o realiza el pago a contacto en el momento de la compra.
+MÉTODOS DE PAGO DEUNA!
+-----------------------
 
-6. CANAL "WHATSAPP/REDES"
-La transacción se origina fuera del local, a través de un link de pago enviado por WhatsApp, Instagram u otra red social. El cliente paga desde cualquier ubicación.
+  QR Deuna
+  --------
+  El comercio genera (o imprime físicamente) un código QR vinculado a su
+  cuenta Deuna!. El cliente escanea el código con su app y autoriza el pago
+  de forma inmediata. Es el método más común en transacciones presenciales.
+  Requiere que el cliente tenga la app instalada y conexión a internet
+  en el momento del cobro.
 
-7. ESTADO "COMPLETADA"
-La transacción fue procesada exitosamente: el monto fue debitado de la cuenta del cliente y acreditado en la cuenta Deuna! del comerciante en tiempo real.
+  Pago a Contacto (Celular)
+  -------------------------
+  El cobro se realiza enviando una solicitud de pago al número de teléfono
+  celular registrado del cliente en la plataforma Deuna!. No requiere que el
+  cliente escanee nada; basta con que el comercio ingrese el número del
+  comprador y el monto. Es especialmente útil cuando el cliente no tiene
+  disponible la app en pantalla.
 
-8. ESTADO "PENDIENTE"
-La transacción fue iniciada pero aún no se confirmó. Puede deberse a latencia en la red, demora en la validación biométrica del cliente, o cuellos de botella temporales en la plataforma. Si no se resuelve en el tiempo límite, puede pasar a "Anulada". En este dataset, COM003 (Cevichería El Rincón Costeño) experimentó un alza anómala de Pendientes (18%) en enero de 2026 por un bug temporal en la red.
+  Link de Pago Deuna
+  ------------------
+  El comercio genera un enlace de cobro único desde la app Deuna! y lo envía
+  al cliente por WhatsApp, redes sociales, correo electrónico o cualquier
+  canal de mensajería. El cliente hace clic, abre la pasarela de Deuna! en
+  su navegador o app, y completa el pago. Es el método dominante en ventas
+  a distancia y pedidos anticipados. Su uso se incrementa notablemente los
+  fines de semana.
 
-9. ESTADO "ANULADA"
-La transacción no fue completada y el monto no fue transferido. Las causas incluyen: timeout de la app, falta de conectividad, saldo insuficiente o cancelación manual. En este dataset, COM001 (Tienda La Esquina de Doña Rosa) registró un 35% de transacciones Anuladas en octubre de 2025 debido a una caída masiva del internet en su zona.
 
-10. NPS SCORE (Net Promoter Score)
-Métrica de lealtad del cliente medida en escala de 0 a 10. Pregunta base: "¿Qué tan probable es que recomiendes Deuna! a un familiar o amigo?". Clasificación:
-  - Promotores: 9-10 (clientes leales que recomiendan activamente)
-  - Pasivos: 7-8 (satisfechos pero no entusiastas)
-  - Detractores: 0-6 (clientes insatisfechos que pueden dañar la marca)
-  Fórmula NPS = % Promotores − % Detractores
+ESTADOS DE UNA TRANSACCIÓN
+----------------------------
 
-11. CLV — VALOR DE VIDA DEL CLIENTE (Customer Lifetime Value)
-Estimación del ingreso neto total que un cliente generará para el negocio durante toda su relación comercial. En el contexto de Deuna!, se calcula como:
-  CLV = (Ticket Promedio) × (Frecuencia de Compra Mensual) × (Meses de Retención Estimados)
-Es un indicador clave para priorizar segmentos (Frecuente, Ocasional, Nuevo, Inactivo) y diseñar campañas de fidelización dentro de la app.
+  Completada
+  ----------
+  El pago fue autorizado, procesado y acreditado exitosamente en la cuenta
+  del comercio. El flujo de dinero se completó sin interrupciones.
 
-12. PERÍODO DE ANÁLISIS
-Todos los datos de este dataset corresponden exclusivamente al período:
-  19 de abril de 2025 → 19 de abril de 2026 (exactamente 366 días, año bisiesto incluido).
+  Pendiente
+  ----------
+  La transacción fue iniciada pero aún no ha recibido confirmación definitiva
+  de la red de pagos. Puede ocurrir por latencia en la conexión del cliente
+  o del comercio, o por demoras temporales en el procesador de pagos.
+  Una transacción pendiente puede resolverse como "Completada" o "Anulada"
+  en las horas siguientes. Alta concentración de pendientes puede indicar
+  problemas técnicos en la red (ejemplo: COM003 en enero de 2026 presentó
+  un bug temporal que elevó los pendientes al 16%).
 
-13. SEGMENTOS DE CLIENTE
-  - Frecuente: 8+ visitas/mes. Alta lealtad, alto CLV.
-  - Ocasional: 2-7 visitas/mes. Potencial de conversión a Frecuente.
-  - Nuevo: 1-3 visitas/mes, registrado recientemente. En período de adopción.
-  - Inactivo: 0-1 visitas/mes. Riesgo de churn; candidato a campañas de reactivación.
+  Anulada
+  -------
+  La transacción fue cancelada antes de completarse. Las causas más comunes
+  son: timeout por pérdida de conexión a internet, rechazo por saldo
+  insuficiente, o cancelación manual por el cliente o el comercio. Un
+  incremento anómalo de anuladas en un período corto es señal de alerta
+  operacional (ejemplo: COM001 en octubre de 2025 alcanzó 34% de anuladas
+  por caída masiva de internet en el barrio).
+
+
+CANAL DE COBRO
+--------------
+
+  Presencial
+  ----------
+  La transacción ocurre con el cliente físicamente en el punto de venta.
+  El método predominante es el QR Deuna impreso o mostrado en pantalla.
+
+  WhatsApp/Redes
+  --------------
+  El cobro se gestiona a distancia mediante el envío de un Link de Pago
+  Deuna o una solicitud por Pago a Contacto, a través de WhatsApp u otras
+  redes sociales. Representa la vía de cobro remoto de la plataforma.
+
+
+NPS SCORE (Net Promoter Score)
+-------------------------------
+El NPS Score mide la probabilidad de que un cliente recomiende Deuna! o el
+micronegocio a un familiar o amigo. Se expresa en una escala de 0 a 10:
+
+  - Promotores   (9-10): Clientes muy satisfechos, altamente leales.
+  - Pasivos      (7-8) : Clientes satisfechos pero no entusiastas.
+  - Detractores  (0-6) : Clientes insatisfechos que podrían generar
+                         comentarios negativos.
+
+El NPS agregado se calcula como: %Promotores - %Detractores. Un NPS
+positivo (>0) indica que hay más promotores que detractores en la base
+de clientes.
+
+
+VALOR DE VIDA DEL CLIENTE — CLV (Customer Lifetime Value)
+----------------------------------------------------------
+El CLV estima el ingreso total que un cliente generará para el negocio
+durante toda su relación comercial. En el contexto de Deuna! y los
+micronegocios, se puede aproximar como:
+
+  CLV ≈ Ticket Promedio × Frecuencia de Visitas Mensual × Meses Activos
+
+Un cliente "Frecuente" con ticket promedio de $5.00, 12 visitas/mes y
+18 meses de vida activa tendría un CLV estimado de $1,080. El análisis
+del CLV por segmento permite priorizar acciones de retención y campañas
+de fidelización dentro de la plataforma Deuna!.
+
+
+SEGMENTOS DE CLIENTES
+----------------------
+
+  Frecuente : Realiza 8 o más transacciones por mes en el mismo comercio.
+  Ocasional : Entre 2 y 7 transacciones por mes.
+  Nuevo     : Entre 1 y 3 transacciones (cliente reciente, menos de 3 meses).
+  Inactivo  : 0 o 1 transacción en el último mes registrado.
+
+
+============================================================
+  Documento generado para uso interno — Dashboard Deuna!
+  Fuente: dataset sintético basado en comportamiento real de
+  micronegocios afiliados a Banco Pichincha Ecuador.
+============================================================
