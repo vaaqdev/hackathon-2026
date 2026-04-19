@@ -1,4 +1,4 @@
 comercio_id,nombre,categoria,ciudad,zona,apertura,cierre
-COM001,Supermercado El Canasto,Supermercado,Quito,Norte,07:00,22:00
-COM002,Farmacia SaludPlus,Farmacia,Guayaquil,Centro,08:00,21:00
-COM003,Restaurante Sabor Andino,Restaurante,Cuenca,Sur,12:00,23:00
+COM001,Tienda La Esquina de Doña Rosa,Tienda,Quito,Norte,07:00,20:00
+COM002,Botica Don Jacinto,Farmacia,Quito,Centro,08:00,21:00
+COM003,Cevichería El Rincón Costeño,Restaurante,Guayaquil,Sur,10:00,16:00

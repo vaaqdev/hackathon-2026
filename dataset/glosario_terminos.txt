@@ -1,78 +1,52 @@
-GLOSARIO DE TÉRMINOS DE NEGOCIO
-Período de cobertura: 2025-04-01 a 2026-04-01
-================================================
+GLOSARIO DE TÉRMINOS — DASHBOARD DEUNA! (Banco Pichincha)
+Período de análisis: 19 de abril de 2025 al 19 de abril de 2026
+==================================================================
 
-Transacción
-  Registro individual de una compra o intercambio comercial entre un comercio y un cliente.
+1. TRANSACCIÓN EN DEUNA!
+Una transacción en Deuna! es el registro de un intercambio económico digital entre un cliente y un microempresario, realizado exclusivamente a través de la billetera móvil Deuna! de Banco Pichincha. Cada transacción tiene un identificador único (TXN-), un monto en dólares (USD), un método de pago digital, un estado y un canal de originación.
 
-Comercio
-  Establecimiento físico o digital registrado en la plataforma que procesa ventas.
+2. PAGO POR QR DEUNA (Método: "QR Deuna")
+El microempresario genera o imprime un código QR estático o dinámico vinculado a su cuenta Deuna!. El cliente, desde su aplicación Deuna!, escanea el código para enviar el monto correspondiente. Este método es mayoritariamente presencial y es el más rápido para puntos de venta físicos. No requiere que el comerciante tenga un POS ni datáfono.
 
-Cliente
-  Persona o entidad que realiza compras; identificado por un código anónimo (CLI####).
+3. PAGO A CONTACTO — CELULAR (Método: "Pago a Contacto")
+El cliente envía el pago directamente al número de celular registrado del comerciante en Deuna!. No se necesita QR ni enlace; basta con buscar el número en la app. Es muy utilizado en entornos mixtos (presencial y digital). Ideal cuando el comerciante no tiene impreso su QR.
 
-Segmento de cliente
-  Clasificación de clientes según comportamiento: Frecuente, Ocasional, Nuevo, Inactivo.
+4. LINK DE PAGO DEUNA (Método: "Link de Pago Deuna")
+El microempresario genera un enlace de cobro desde la app Deuna! y lo comparte por WhatsApp, Instagram, Facebook u otros canales digitales. El cliente abre el link, ingresa a una pasarela segura y confirma el pago. Domina en transacciones de fin de semana y en ventas a distancia.
 
-Monto USD
-  Valor monetario de la transacción expresado en dólares estadounidenses.
+5. CANAL "PRESENCIAL"
+La transacción ocurre en el local físico del comerciante. El cliente está presente y escanea el QR o realiza el pago a contacto en el momento de la compra.
 
-Canal
-  Medio por el que se realizó la compra: Presencial, App o Web.
+6. CANAL "WHATSAPP/REDES"
+La transacción se origina fuera del local, a través de un link de pago enviado por WhatsApp, Instagram u otra red social. El cliente paga desde cualquier ubicación.
 
-Método de pago
-  Instrumento financiero usado: Efectivo, Tarjeta débito/crédito, Transferencia, App de pago.
+7. ESTADO "COMPLETADA"
+La transacción fue procesada exitosamente: el monto fue debitado de la cuenta del cliente y acreditado en la cuenta Deuna! del comerciante en tiempo real.
 
-Estado de transacción
-  Resultado de la operación: Completada, Anulada o Pendiente.
+8. ESTADO "PENDIENTE"
+La transacción fue iniciada pero aún no se confirmó. Puede deberse a latencia en la red, demora en la validación biométrica del cliente, o cuellos de botella temporales en la plataforma. Si no se resuelve en el tiempo límite, puede pasar a "Anulada". En este dataset, COM003 (Cevichería El Rincón Costeño) experimentó un alza anómala de Pendientes (18%) en enero de 2026 por un bug temporal en la red.
 
-Frecuencia de visita
-  Número promedio de visitas mensuales de un cliente a un comercio.
+9. ESTADO "ANULADA"
+La transacción no fue completada y el monto no fue transferido. Las causas incluyen: timeout de la app, falta de conectividad, saldo insuficiente o cancelación manual. En este dataset, COM001 (Tienda La Esquina de Doña Rosa) registró un 35% de transacciones Anuladas en octubre de 2025 debido a una caída masiva del internet en su zona.
 
-NPS Score
-  Net Promoter Score; escala 0-10 que mide la probabilidad de recomendación del cliente.
+10. NPS SCORE (Net Promoter Score)
+Métrica de lealtad del cliente medida en escala de 0 a 10. Pregunta base: "¿Qué tan probable es que recomiendes Deuna! a un familiar o amigo?". Clasificación:
+  - Promotores: 9-10 (clientes leales que recomiendan activamente)
+  - Pasivos: 7-8 (satisfechos pero no entusiastas)
+  - Detractores: 0-6 (clientes insatisfechos que pueden dañar la marca)
+  Fórmula NPS = % Promotores − % Detractores
 
-Ticket promedio
-  Monto promedio por transacción, calculado como Monto total / Número de transacciones.
+11. CLV — VALOR DE VIDA DEL CLIENTE (Customer Lifetime Value)
+Estimación del ingreso neto total que un cliente generará para el negocio durante toda su relación comercial. En el contexto de Deuna!, se calcula como:
+  CLV = (Ticket Promedio) × (Frecuencia de Compra Mensual) × (Meses de Retención Estimados)
+Es un indicador clave para priorizar segmentos (Frecuente, Ocasional, Nuevo, Inactivo) y diseñar campañas de fidelización dentro de la app.
 
-Tasa de conversión
-  Porcentaje de visitas que resultaron en una transacción completada.
+12. PERÍODO DE ANÁLISIS
+Todos los datos de este dataset corresponden exclusivamente al período:
+  19 de abril de 2025 → 19 de abril de 2026 (exactamente 366 días, año bisiesto incluido).
 
-Tasa de anulación
-  Porcentaje de transacciones con estado "Anulada" sobre el total.
-
-Categoría de producto
-  Agrupación temática de los artículos vendidos (p.ej. Lácteos, Medicamentos).
-
-Trimestre
-  División del año en cuatro períodos de tres meses: Q1 (ene-mar), Q2 (abr-jun), Q3 (jul-sep), Q4 (oct-dic).
-
-Periodo de análisis
-  Ventana de tiempo considerada en el análisis; en este dataset: 2025-04-01 a 2026-04-01.
-
-Zona geográfica
-  Área de ubicación del comercio dentro de su ciudad (Norte, Centro, Sur).
-
-Cohorte
-  Grupo de clientes que comparten una característica temporal, como mes de primer registro.
-
-Retención
-  Porcentaje de clientes que repiten compra en un período definido.
-
-Valor de vida del cliente (CLV)
-  Estimación del ingreso total que generará un cliente a lo largo de su relación comercial.
-
-Estacionalidad
-  Variación periódica y predecible en el volumen de transacciones según fechas del año.
-
-Hora pico
-  Franja horaria con mayor concentración de transacciones en un comercio.
-
-Ítem
-  Unidad individual de producto incluida en una transacción.
-
-KPI
-  Indicador Clave de Desempeño; métrica que evalúa el cumplimiento de objetivos de negocio.
-
-Dashboard
-  Tablero visual que consolida KPIs y métricas para facilitar la toma de decisiones.
+13. SEGMENTOS DE CLIENTE
+  - Frecuente: 8+ visitas/mes. Alta lealtad, alto CLV.
+  - Ocasional: 2-7 visitas/mes. Potencial de conversión a Frecuente.
+  - Nuevo: 1-3 visitas/mes, registrado recientemente. En período de adopción.
+  - Inactivo: 0-1 visitas/mes. Riesgo de churn; candidato a campañas de reactivación.

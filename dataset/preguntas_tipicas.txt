@@ -1,41 +1,51 @@
-PREGUNTAS TÍPICAS PARA ANÁLISIS TRANSACCIONAL
-Período de cobertura: 2025-04-01 a 2026-04-01
-================================================
+PREGUNTAS ANALÍTICAS TÍPICAS — DASHBOARD DEUNA!
+Período: 19 abril 2025 – 19 abril 2026
+==================================================================
 
-ÁREA: VENTAS
-1. ¿Cuál fue el monto total de ventas por comercio en el primer trimestre de 2025?
-2. ¿Cuáles son los 3 meses con mayor facturación en Supermercado El Canasto?
-3. ¿Cómo evolucionaron las ventas mensuales de Farmacia SaludPlus de abril a diciembre de 2025?
+── SECCIÓN 1: ADOPCIÓN DE LA APP ──────────────────────────────────────────────
 
-ÁREA: CLIENTES
-4. ¿Qué porcentaje de las transacciones corresponde a clientes frecuentes vs. ocasionales?
-5. ¿Cuántos clientes nuevos se registraron cada mes en 2025?
-6. ¿Cuál es el NPS promedio por segmento de cliente?
+1. ¿Cuál es el porcentaje de uso de cada método de pago (QR Deuna, Pago a Contacto, Link de Pago) por comercio y por mes? ¿Se observa una tendencia de adopción creciente del Link de Pago Deuna a lo largo del año?
 
-ÁREA: PRODUCTOS
-7. ¿Cuál es la categoría de producto con mayor número de ítems vendidos en Restaurante Sabor Andino?
-8. ¿Qué categoría genera el ticket promedio más alto en la Farmacia SaludPlus?
+2. ¿Qué canal de pago (Presencial vs. WhatsApp/Redes) genera mayor volumen de ventas ($) en cada microempresario? ¿Existe diferencia significativa entre días de semana y fines de semana?
 
-ÁREA: OPERACIONES
-9. ¿Cuál es la tasa de anulación de transacciones por comercio?
-10. ¿En qué rango horario se concentra el mayor volumen de ventas de cada comercio?
+3. ¿Qué porcentaje de clientes de cada segmento (Frecuente, Ocasional, Nuevo, Inactivo) utiliza el canal "WhatsApp/Redes"? ¿Los clientes más leales prefieren el canal digital?
 
-ÁREA: PAGOS
-11. ¿Cuál es el método de pago más utilizado en cada comercio?
-12. ¿Las ventas con tarjeta de crédito tienen un ticket promedio mayor que las de efectivo?
+4. ¿Cuántos clientes únicos realizaron su primera transacción en Deuna! (clientes "Nuevos") cada mes? ¿Hay un pico de adquisición en algún período específico?
 
-ÁREA: CANALES
-13. ¿Qué proporción de ventas proviene del canal App vs. Presencial en los tres comercios?
-14. ¿Los clientes de canal Web tienen mayor frecuencia de compra que los de canal Presencial?
+5. ¿Cuál es la tasa de retención mensual de clientes calculada como el porcentaje de clientes que repitieron una compra en el mes siguiente en cada comercio?
 
-ÁREA: ESTACIONALIDAD
-15. ¿Qué días de la semana registran más transacciones en el Restaurante Sabor Andino?
-16. ¿Existe un patrón estacional en las ventas de Farmacia SaludPlus durante fechas festivas?
+── SECCIÓN 2: OPERACIONES Y FALLOS ────────────────────────────────────────────
 
-ÁREA: COMPARATIVO
-17. ¿Qué comercio tiene el ticket promedio más alto?
-18. ¿Cómo se compara el crecimiento de ventas entre los tres comercios en el período?
+6. ¿Cuál es la tasa de transacciones "Anuladas" por comercio y por mes? ¿El evento de caída de internet de COM001 en octubre de 2025 es claramente visible como outlier estadístico?
 
-ÁREA: RETENCIÓN
-19. ¿Cuántos clientes que compraron en abril de 2025 volvieron a comprar en julio de 2025?
-20. ¿Cuál es la tasa de retención mensual promedio por comercio?
+7. ¿Qué método de pago tiene la tasa de error (Pendiente + Anulada) más alta en cada comercio? ¿El "Link de Pago Deuna" es más propenso a quedar en estado Pendiente?
+
+8. ¿Cuántas transacciones quedaron en estado "Pendiente" durante el mes de enero de 2026 en COM003 (Cevichería El Rincón Costeño) vs. el promedio de los demás meses? ¿A qué hora del día se concentran esos fallos?
+
+9. ¿Cuál es el monto total ($) comprometido (no cobrado) en transacciones Anuladas y Pendientes por trimestre y por comercio?
+
+10. ¿Existe correlación entre el canal "WhatsApp/Redes" y una mayor tasa de estados "Pendiente" o "Anulada" respecto al canal "Presencial"?
+
+── SECCIÓN 3: COMPORTAMIENTO DEL MICROEMPRESARIO ──────────────────────────────
+
+11. ¿Cuál es el ticket promedio por método de pago en cada comercio? ¿Los pagos por "Link de Pago Deuna" tienden a ser de mayor valor que los pagos por QR?
+
+12. ¿Qué categoría de producto genera mayor ingreso ($) en cada negocio? ¿Y cuál tiene el mayor número de ítems promedio por transacción?
+
+13. ¿Cómo varía el NPS Score promedio entre segmentos de clientes (Frecuente vs. Inactivo) por ciudad? ¿Los clientes de Quito tienen mayor satisfacción que los de Guayaquil?
+
+14. ¿Cuál es el CLV estimado de los clientes "Frecuentes" vs. "Ocasionales" en cada comercio, usando ticket promedio × frecuencia mensual × 12 meses?
+
+15. ¿Qué rango de edad concentra el mayor volumen de transacciones en cada microempresario? ¿El segmento 26-35 años es el principal usuario de Deuna!?
+
+── SECCIÓN 4: ESTACIONALIDAD ──────────────────────────────────────────────────
+
+16. ¿Cuál es el incremento porcentual exacto en el volumen de transacciones de diciembre de 2025 respecto al mes inmediatamente anterior (noviembre 2025) en cada comercio? ¿El +80% proyectado se cumplió?
+
+17. ¿Marzo de 2026 presenta una caída en el monto total vendido vs. febrero de 2026 y abril de 2025 en los tres comercios? ¿La caída es uniforme o afecta más a algún negocio?
+
+18. ¿Cuál es la distribución horaria de ventas de COM003 (Cevichería El Rincón Costeño)? ¿El 80% de las transacciones se concentra efectivamente entre las 12:00 y las 14:30?
+
+19. ¿Qué día de la semana concentra el mayor volumen de ventas ($) y el mayor número de transacciones para cada comercio? ¿El "Link de Pago Deuna" domina los fines de semana como se esperaba?
+
+20. ¿Cuál es la tendencia trimestral (Q1 2025 parcial, Q2 2025, Q3 2025, Q4 2025, Q1 2026, Q2 2026 parcial) del ticket promedio y del número de transacciones por comercio? ¿Se observa crecimiento sostenido en la adopción de Deuna! a lo largo del año?
