@@ -1,22 +1,17 @@
-const API_BASE = 'http://localhost:5000/api';
+// Detecta automáticamente la IP o el dominio desde el que estás accediendo
+const host = window.location.hostname || 'localhost';
+const API_BASE = `http://${host}:5000/api`;
+
 let COMERCIO_ID = null;
 let saldoVisible = true;
 let saldoActual = 0;
 let nombreComercio = '';
+
 let selectedAccountTemp = 'COM001';
-let comerciosDisponibles = []; // Almacena los comercios cargados del servidor
+let comerciosDisponibles = []; 
 const accountBalances = {};
 
-document.addEventListener("DOMContentLoaded", async () => {
-    // Cargar comercios disponibles desde el servidor, luego seleccionar el primero
-    await loadAccountOptions();
-    if (comerciosDisponibles.length > 0) {
-        cambiarCuenta(comerciosDisponibles[0].comercio.id);
-    }
-});
-
 function getInitials(nombre) {
-    // Genera iniciales a partir del nombre del comercio
     return nombre
         .split(' ')
         .map(word => word[0])
@@ -25,8 +20,15 @@ function getInitials(nombre) {
         .toUpperCase();
 }
 
-async function loadAccountOptions() {
+document.addEventListener("DOMContentLoaded", async () => {
     // Cargar comercios disponibles desde el servidor
+    await loadAccountOptions();
+    if (comerciosDisponibles.length > 0) {
+        cambiarCuenta(comerciosDisponibles[0].comercio.id);
+    }
+});
+
+async function loadAccountOptions() {
     try {
         const res = await fetch(`${API_BASE}/comercios`);
         if (!res.ok) throw new Error('Error cargando comercios');
@@ -62,7 +64,6 @@ async function loadAccountOptions() {
 }
 
 async function loadAccountBalances() {
-    // Cargar saldos de todas las cuentas cargadas dinámicamente
     for (const c of comerciosDisponibles) {
         const comercioId = c.comercio.id;
         try {
@@ -86,19 +87,15 @@ function openAccountModal() {
     selectedAccountTemp = COMERCIO_ID || primerComercio;
     updateAccountSelectionUI();
     const modal = document.getElementById('accountModal');
-    if (modal) {
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
 function closeAccountModal(event) {
     if (event && event.target !== event.currentTarget) return;
     const modal = document.getElementById('accountModal');
-    if (modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 function selectAccountOption(accountId) {
@@ -117,6 +114,9 @@ function updateAccountSelectionUI() {
 }
 
 async function confirmAccountChange() {
+    if (!selectedAccountTemp && comerciosDisponibles.length > 0) {
+        selectedAccountTemp = comerciosDisponibles[0].comercio.id;
+    }
     await cambiarCuenta(selectedAccountTemp);
     const badge = document.getElementById('current-account-badge');
     if (badge) badge.textContent = selectedAccountTemp;
@@ -128,7 +128,6 @@ async function cambiarCuenta(idComercio) {
     COMERCIO_ID = idComercio;
 
     try {
-        // Obtener datos del comercio
         const res = await fetch(`${API_BASE}/comercio/${COMERCIO_ID}`);
         if (!res.ok) throw new Error("Comercio no encontrado");
         const data = await res.json();
@@ -136,41 +135,30 @@ async function cambiarCuenta(idComercio) {
         saldoActual = data.metricas.saldo_actual;
         nombreComercio = data.comercio.nombre;
 
-        // Actualizar UI si los elementos existen
-        const balanceLabel = document.getElementById('balance-label-cuenta');
-        const balanceCuentaInfo = document.getElementById('balance-cuenta-info');
+        document.getElementById('balance-label-cuenta').textContent = `Cuenta: ${nombreComercio}`;
+        document.getElementById('balance-cuenta-info').textContent = `${data.comercio.categoria} • ${data.comercio.ciudad}`;
         const currentBadge = document.getElementById('current-account-badge');
-
-        if (balanceLabel) balanceLabel.textContent = `Cuenta: ${nombreComercio}`;
-        if (balanceCuentaInfo) balanceCuentaInfo.textContent = `${data.comercio.categoria} • ${data.comercio.ciudad}`;
         if (currentBadge) currentBadge.textContent = COMERCIO_ID;
-
         actualizarSaldoUI();
 
-        // Recargar datos relacionados
         await fetchAlertaProactiva();
         if (window.innerWidth >= 768) await fetchDashboardMetrics();
 
     } catch (error) {
         console.error("Error al cargar cuenta:", error);
-        const balanceLabel = document.getElementById('balance-label-cuenta');
-        if (balanceLabel) balanceLabel.textContent = "Error al cargar cuenta";
+        document.getElementById('balance-label-cuenta').textContent = "Error al cargar cuenta";
     }
 }
 
 function toggleSaldoVisibility() {
     saldoVisible = !saldoVisible;
     const eyeIcon = document.getElementById('eye-icon');
-    if (eyeIcon) {
-        eyeIcon.className = saldoVisible ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
-    }
+    eyeIcon.className = saldoVisible ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
     actualizarSaldoUI();
 }
 
 function actualizarSaldoUI() {
     const balanceElement = document.getElementById('balance-amount-value');
-    if (!balanceElement) return;
-
     if (saldoVisible) {
         balanceElement.textContent = `$${saldoActual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         balanceElement.style.color = '#FFFFFF';
@@ -186,23 +174,25 @@ async function fetchAlertaProactiva() {
         const res = await fetch(`${API_BASE}/alerta-proactiva?id_comercio=${COMERCIO_ID}`);
         if (!res.ok) throw new Error("Error de red al consultar alerta");
         const data = await res.json();
+        
+        let bg = 'rgba(0, 210, 185, 0.1)';
+        let color = 'var(--text-primary)';
+        let border = 'rgba(0, 210, 185, 0.3)';
+        let iconColor = 'var(--deuna-turquoise)';
+        let icon;
 
-        let bg, color, border, icon;
-        if (data.tipo === 'positiva') { bg = 'rgba(16, 185, 129, 0.1)'; color = '#34d399'; border = 'rgba(16, 185, 129, 0.2)'; icon = 'fa-arrow-trend-up'; }
-        else if (data.tipo === 'negativa') { bg = 'rgba(239, 68, 68, 0.1)'; color = '#f87171'; border = 'rgba(239, 68, 68, 0.2)'; icon = 'fa-arrow-trend-down'; }
-        else { bg = 'rgba(139, 92, 246, 0.1)'; color = '#a78bfa'; border = 'rgba(139, 92, 246, 0.2)'; icon = 'fa-lightbulb'; }
+        if (data.tipo === 'positiva') { icon = 'fa-arrow-trend-up'; }
+        else if (data.tipo === 'negativa') { icon = 'fa-arrow-trend-down'; iconColor = '#EF4444'; bg = 'rgba(239, 68, 68, 0.05)'; border = 'rgba(239, 68, 68, 0.2)'; }
+        else { icon = 'fa-lightbulb'; iconColor = 'var(--deuna-purple)'; bg = 'rgba(76, 29, 128, 0.05)'; border = 'rgba(76, 29, 128, 0.15)'; }
 
         const badgeHTML = `
-            <div class="proactive-badge" style="background:${bg}; color:${color}; border:1px solid ${border};" onclick="askAboutAlert('${data.titulo}')">
-                <i class="fa-solid ${icon}"></i>
-                <span><strong style="color: #fff">${data.titulo}</strong> ${data.descripcion}</span>
+            <div class="proactive-badge" style="background:${bg}; color:${color}; border-color:${border};" onclick="askAboutAlert('${data.titulo}')">
+                <i class="fa-solid ${icon}" style="color: ${iconColor};"></i>
+                <span><strong style="color: ${iconColor};">${data.titulo}</strong> ${data.descripcion}</span>
             </div>`;
-
-        const badgePC = document.getElementById('proactive-badge-pc');
-        const badgeMobile = document.getElementById('proactive-badge-mobile');
-
-        if (badgePC) badgePC.innerHTML = badgeHTML;
-        if (badgeMobile) badgeMobile.innerHTML = badgeHTML;
+        
+        document.getElementById('proactive-badge-pc').innerHTML = badgeHTML;
+        document.getElementById('proactive-badge-mobile').innerHTML = badgeHTML;
     } catch (error) {
         console.error("Fallo carga alerta proactiva:", error);
     }
@@ -210,10 +200,8 @@ async function fetchAlertaProactiva() {
 
 function askAboutAlert(titulo) {
     const input = window.innerWidth >= 768 ? document.getElementById('modal-user-input') : document.getElementById('mobile-user-input');
-    if (input) {
-        input.value = `Dime más sobre esto: ${titulo}`;
-        window.innerWidth >= 768 ? sendMessageModal() : sendMessageMobile();
-    }
+    input.value = `Dime más sobre esto: ${titulo}`;
+    window.innerWidth >= 768 ? sendMessageModal() : sendMessageMobile();
 }
 
 let pieChartInstance = null;
@@ -229,13 +217,9 @@ async function fetchDashboardMetrics() {
         const ticket = metricas.ticket_promedio || 0;
         const tx = metricas.total_transacciones || 0;
 
-        const kpiVentas = document.getElementById('kpi-ventas');
-        const kpiTicket = document.getElementById('kpi-ticket');
-        const kpiTx = document.getElementById('kpi-tx');
-
-        if (kpiVentas) kpiVentas.textContent = `$${ventas.toLocaleString()}`;
-        if (kpiTicket) kpiTicket.textContent = `$${ticket}`;
-        if (kpiTx) kpiTx.textContent = tx.toLocaleString();
+        document.getElementById('kpi-ventas').textContent = `$${ventas.toLocaleString()}`;
+        document.getElementById('kpi-ticket').textContent = `$${ticket}`;
+        document.getElementById('kpi-tx').textContent = tx.toLocaleString();
 
         const metodosPago = data.metodos_pago || {};
         const porcentajes = metodosPago.porcentajes || {};
@@ -248,57 +232,47 @@ async function fetchDashboardMetrics() {
 }
 
 function renderPieChart(labels, data) {
-    const canvas = document.getElementById('dashboardPieChart');
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (pieChartInstance) pieChartInstance.destroy();
-
+    const ctx = document.getElementById('dashboardPieChart').getContext('2d');
+    if (pieChartInstance) pieChartInstance.destroy(); 
+    
     Chart.defaults.color = '#6C6C6C';
-
+    
     pieChartInstance = new Chart(ctx, {
-        type: 'doughnut',
+        type: 'doughnut', 
         data: {
             labels: labels,
             datasets: [{
                 data: data,
-                backgroundColor: ['#4C1D80', '#00D2B9', '#8b5cf6', '#fbbf24'],
-                borderWidth: 2,
+                backgroundColor: ['#4C1D80', '#00D2B9', '#8b5cf6', '#fbbf24'], 
+                borderWidth: 2, 
                 borderColor: '#FFFFFF'
             }]
         },
         options: {
             responsive: true, maintainAspectRatio: false,
             cutout: '65%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: '#1E1E1E', padding: 20, boxWidth: 12, usePointStyle: true, font: { size: 13, family: 'Inter' } }
-                }
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { color: '#1E1E1E', padding: 20, boxWidth: 12, usePointStyle: true, font: { size: 13, family: 'Inter' } } 
+                } 
             }
         }
     });
 }
 
-// Configurar event listeners para inputs
 const modalInput = document.getElementById('modal-user-input');
 const mobileInput = document.getElementById('mobile-user-input');
 const modalChatArea = document.getElementById('modal-chat-messages');
 const mobileChatArea = document.getElementById('mobile-chat-messages');
 
-if (modalInput) {
-    modalInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessageModal(); });
-}
-if (mobileInput) {
-    mobileInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessageMobile(); });
-}
+modalInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessageModal(); });
+mobileInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessageMobile(); });
 
 function sendMessageModal() { sendChatToAPI(modalInput, modalChatArea); }
 function sendMessageMobile() { sendChatToAPI(mobileInput, mobileChatArea); }
 
 async function sendChatToAPI(inputField, chatArea) {
-    if (!inputField || !chatArea) return;
-
     const text = inputField.value.trim();
     if (!text) return;
 
@@ -312,44 +286,56 @@ async function sendChatToAPI(inputField, chatArea) {
         const res = await fetch(`${API_BASE}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mensaje: text, id_comercio: COMERCIO_ID || 'COM001' })
+            body: JSON.stringify({ mensaje: text, id_comercio: COMERCIO_ID })
         });
         const data = await res.json();
-
-        const loader = document.getElementById(loaderId);
-        if (loader) loader.remove();
-
+        
+        document.getElementById(loaderId).remove();
+        
         if(res.ok) {
             appendMessage(data.respuesta, 'bot', chatArea);
         } else {
             appendMessage(data.detail || "Hubo un error al procesar tu solicitud.", 'bot', chatArea);
         }
     } catch (error) {
-        const loader = document.getElementById(loaderId);
-        if (loader) loader.remove();
-        appendMessage("No se pudo conectar a la API en localhost:5000.", 'bot', chatArea);
+        document.getElementById(loaderId).remove();
+        appendMessage(`No se pudo conectar a la API en ${API_BASE}. Asegúrate de que el servidor esté corriendo y configurado para aceptar conexiones en esta red (CORS / 0.0.0.0).`, 'bot', chatArea);
     }
 }
 
 function appendMessage(text, sender, chatArea, id = null) {
-    if (!chatArea) return;
     const msgDiv = document.createElement('div');
     msgDiv.className = `message ${sender}`;
     if (id) msgDiv.id = id;
-    msgDiv.innerHTML = text;
+
+    // Si el mensaje es del bot y NO es el ícono de carga, convertimos de Markdown a HTML
+    if (sender === 'bot' && !text.includes('fa-circle-notch')) {
+        // Configuramos marked para que rompa líneas de forma natural
+        marked.setOptions({ breaks: true });
+        msgDiv.innerHTML = marked.parse(text);
+    } else {
+        // Si es el usuario o el loader, va como texto plano
+        msgDiv.textContent = text;
+        // Excepción para el HTML del loader
+        if(text.includes('fa-circle-notch')) msgDiv.innerHTML = text;
+    }
+
     chatArea.appendChild(msgDiv);
-    chatArea.scrollTop = chatArea.scrollHeight;
+
+    // Usar scroll behavior smooth para que baje fluidamente
+    chatArea.scrollTo({
+        top: chatArea.scrollHeight,
+        behavior: 'smooth'
+    });
 }
 
 let toastTimeout;
 function showMockMessage(featureName) {
     const toast = document.getElementById('toastMessage');
-    if (toast) {
-        toast.textContent = `Demo: Clic en "${featureName}"`;
-        toast.classList.add('show');
-        clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => toast.classList.remove('show'), 2000);
-    }
+    toast.textContent = `Demo: Clic en "${featureName}"`;
+    toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
 const homeScreen = document.getElementById('screen-home');
@@ -359,32 +345,32 @@ const chatModal = document.getElementById('chatModal');
 
 function openChat() {
     if (window.innerWidth >= 768) {
-        if (chatModal) chatModal.style.display = 'flex';
+        chatModal.classList.add('active');
     } else {
-        if (homeScreen) homeScreen.classList.add('hidden');
-        if (mobileNav) mobileNav.style.display = 'none';
-        setTimeout(() => { if (chatMobileScreen) chatMobileScreen.classList.remove('hidden'); }, 50);
+        homeScreen.classList.add('hidden');
+        mobileNav.style.display = 'none';
+        setTimeout(() => chatMobileScreen.classList.remove('hidden'), 50);
     }
 }
 
 function closeChat() {
     if (window.innerWidth >= 768) {
-        if (chatModal) chatModal.style.display = 'none';
+        chatModal.classList.remove('active');
     } else {
-        if (chatMobileScreen) chatMobileScreen.classList.add('hidden');
-        if(window.innerWidth < 768 && mobileNav) mobileNav.style.display = 'flex';
-        setTimeout(() => { if (homeScreen) homeScreen.classList.remove('hidden'); }, 50);
+        chatMobileScreen.classList.add('hidden');
+        if(window.innerWidth < 768) mobileNav.style.display = 'flex';
+        setTimeout(() => homeScreen.classList.remove('hidden'), 50);
     }
 }
 
 window.addEventListener('resize', () => {
     if (window.innerWidth >= 768) {
-        if (mobileNav) mobileNav.style.display = 'none';
-        if (chatMobileScreen) chatMobileScreen.classList.add('hidden');
-        if (homeScreen) homeScreen.classList.remove('hidden');
+        mobileNav.style.display = 'none';
+        chatMobileScreen.classList.add('hidden');
+        homeScreen.classList.remove('hidden');
         if(!pieChartInstance) fetchDashboardMetrics();
     } else {
-        if (chatModal && chatModal.style.display === 'flex') closeChat();
-        if (chatMobileScreen && chatMobileScreen.classList.contains('hidden') && mobileNav) mobileNav.style.display = 'flex';
+        if (chatModal.classList.contains('active')) closeChat();
+        if (chatMobileScreen.classList.contains('hidden')) mobileNav.style.display = 'flex';
     }
 });

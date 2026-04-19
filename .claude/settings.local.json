@@ -6,7 +6,8 @@
       "Bash(pip list *)",
       "Bash(pip install *)",
       "Bash(ipconfig)",
-      "Bash(findstr /i \"IPv4\")"
+      "Bash(findstr /i \"IPv4\")",
+      "Bash(git checkout *)"
     ]
   }
 }
