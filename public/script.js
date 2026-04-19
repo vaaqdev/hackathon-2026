@@ -8,8 +8,12 @@ let saldoActual = 0;
 let nombreComercio = '';
 
 let selectedAccountTemp = 'COM001';
-let comerciosDisponibles = []; 
+let comerciosDisponibles = [];
 const accountBalances = {};
+
+// Historial de chat separado por comercio (clave: comercio_id, valor: array de mensajes)
+const chatHistoriesByComercio = {};
+let currentChatHistory = [];
 
 function getInitials(nombre) {
     return nombre
@@ -125,7 +129,17 @@ async function confirmAccountChange() {
 }
 
 async function cambiarCuenta(idComercio) {
+    // Si ya hay un comercio activo, guardar su historial de chat
+    if (COMERCIO_ID && COMERCIO_ID !== idComercio) {
+        chatHistoriesByComercio[COMERCIO_ID] = [...currentChatHistory];
+    }
+
     COMERCIO_ID = idComercio;
+
+    // Limpiar las áreas de chat y cargar historial del nuevo comercio
+    clearChatAreas();
+    currentChatHistory = chatHistoriesByComercio[COMERCIO_ID] || [];
+    renderChatHistory();
 
     try {
         const res = await fetch(`${API_BASE}/comercio/${COMERCIO_ID}`);
@@ -148,6 +162,71 @@ async function cambiarCuenta(idComercio) {
         console.error("Error al cargar cuenta:", error);
         document.getElementById('balance-label-cuenta').textContent = "Error al cargar cuenta";
     }
+}
+
+// Limpiar ambas áreas de chat (PC y móvil)
+function clearChatAreas() {
+    const modalChatArea = document.getElementById('modal-chat-messages');
+    const mobileChatArea = document.getElementById('mobile-chat-messages');
+
+    // Guardar los mensajes del sistema (bienvenida) pero limpiar el resto
+    if (modalChatArea) {
+        const systemMessages = modalChatArea.querySelectorAll('.message.bot');
+        modalChatArea.innerHTML = '';
+        // Re-agregar mensaje de bienvenida
+        addWelcomeMessage(modalChatArea);
+    }
+
+    if (mobileChatArea) {
+        const systemMessages = mobileChatArea.querySelectorAll('.message.bot');
+        mobileChatArea.innerHTML = '';
+        // Re-agregar mensaje de bienvenida
+        addWelcomeMessage(mobileChatArea);
+    }
+}
+
+// Agregar mensaje de bienvenida específico del comercio
+function addWelcomeMessage(chatArea) {
+    const welcomeDiv = document.createElement('div');
+    welcomeDiv.className = 'message bot';
+    const nombre = nombreComercio || 'tu negocio';
+    welcomeDiv.innerHTML = `¡Hola! Soy tu Contador de Bolsillo 🤖. Estoy aquí para ayudarte con <strong>${nombre}</strong>. ¿Qué te gustaría saber hoy?`;
+    chatArea.appendChild(welcomeDiv);
+}
+
+// Renderizar el historial de chat actual
+function renderChatHistory() {
+    const modalChatArea = document.getElementById('modal-chat-messages');
+    const mobileChatArea = document.getElementById('mobile-chat-messages');
+
+    currentChatHistory.forEach(msg => {
+        if (modalChatArea) {
+            appendMessageToArea(msg.text, msg.sender, modalChatArea);
+        }
+        if (mobileChatArea) {
+            appendMessageToArea(msg.text, msg.sender, mobileChatArea);
+        }
+    });
+}
+
+// Función auxiliar para agregar mensaje a un área específica sin agregar al historial
+function appendMessageToArea(text, sender, chatArea) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${sender}`;
+
+    if (sender === 'bot' && !text.includes('fa-circle-notch')) {
+        marked.setOptions({ breaks: true });
+        msgDiv.innerHTML = marked.parse(text);
+    } else {
+        msgDiv.textContent = text;
+        if(text.includes('fa-circle-notch')) msgDiv.innerHTML = text;
+    }
+
+    chatArea.appendChild(msgDiv);
+    chatArea.scrollTo({
+        top: chatArea.scrollHeight,
+        behavior: 'smooth'
+    });
 }
 
 function toggleSaldoVisibility() {
@@ -276,30 +355,51 @@ async function sendChatToAPI(inputField, chatArea) {
     const text = inputField.value.trim();
     if (!text) return;
 
+    // Guardar mensaje del usuario en historial
     appendMessage(text, 'user', chatArea);
+    currentChatHistory.push({ text: text, sender: 'user', timestamp: Date.now() });
     inputField.value = '';
 
     const loaderId = 'loader-' + Date.now();
     appendMessage('<i class="fa-solid fa-circle-notch fa-spin"></i> Analizando datos...', 'bot', chatArea, loaderId);
 
     try {
+        // Preparar historial para enviar al backend
+        const historialParaBackend = currentChatHistory.slice(-20).map(msg => ({
+            role: msg.sender === 'user' ? 'user' : 'assistant',
+            content: msg.text
+        }));
+
         const res = await fetch(`${API_BASE}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mensaje: text, id_comercio: COMERCIO_ID })
+            body: JSON.stringify({
+                mensaje: text,
+                id_comercio: COMERCIO_ID,
+                historial: historialParaBackend
+            })
         });
         const data = await res.json();
-        
+
         document.getElementById(loaderId).remove();
-        
+
         if(res.ok) {
             appendMessage(data.respuesta, 'bot', chatArea);
+            currentChatHistory.push({ text: data.respuesta, sender: 'bot', timestamp: Date.now() });
         } else {
-            appendMessage(data.detail || "Hubo un error al procesar tu solicitud.", 'bot', chatArea);
+            const errorMsg = data.detail || "Hubo un error al procesar tu solicitud.";
+            appendMessage(errorMsg, 'bot', chatArea);
+            currentChatHistory.push({ text: errorMsg, sender: 'bot', timestamp: Date.now(), isError: true });
         }
+
+        // Guardar historial actualizado
+        chatHistoriesByComercio[COMERCIO_ID] = [...currentChatHistory];
+
     } catch (error) {
         document.getElementById(loaderId).remove();
-        appendMessage(`No se pudo conectar a la API en ${API_BASE}. Asegúrate de que el servidor esté corriendo y configurado para aceptar conexiones en esta red (CORS / 0.0.0.0).`, 'bot', chatArea);
+        const errorMsg = `No se pudo conectar a la API en ${API_BASE}. Asegúrate de que el servidor esté corriendo.`;
+        appendMessage(errorMsg, 'bot', chatArea);
+        currentChatHistory.push({ text: errorMsg, sender: 'bot', timestamp: Date.now(), isError: true });
     }
 }
 
@@ -344,6 +444,9 @@ const mobileNav = document.getElementById('mobile-nav');
 const chatModal = document.getElementById('chatModal');
 
 function openChat() {
+    // Asegurar que el historial del comercio actual esté cargado
+    currentChatHistory = chatHistoriesByComercio[COMERCIO_ID] || [];
+
     if (window.innerWidth >= 768) {
         chatModal.classList.add('active');
     } else {
